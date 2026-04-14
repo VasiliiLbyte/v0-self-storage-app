@@ -1,89 +1,164 @@
+"use client"
+
+import { motion } from "framer-motion"
+
 const BENEFITS = [
   {
+    number: "01",
     title: "Доступ 24/7",
-    description: "Приезжайте когда удобно. Персональный код доступа и круглосуточная охрана.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
+    description: "Приезжайте когда удобно. Персональный код и круглосуточная охрана.",
+    highlight: true,
   },
   {
-    title: "Климат-контроль",
-    description: "Постоянная температура +18°C и влажность 50%. Идеально для любых вещей.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
-      </svg>
-    ),
+    number: "02",
+    title: "Климат +18°C",
+    description: "Постоянная температура и влажность 50%. Идеально для любых вещей.",
+    highlight: false,
   },
   {
-    title: "Видеонаблюдение",
-    description: "120+ камер по всему складу. Запись хранится 30 дней.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-      </svg>
-    ),
+    number: "03",
+    title: "120+ камер",
+    description: "Видеонаблюдение по всему складу. Запись хранится 30 дней.",
+    highlight: false,
   },
   {
-    title: "Страховка включена",
+    number: "04",
+    title: "Страховка",
     description: "Все вещи застрахованы на сумму до 500 000 ₽ без доплат.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-      </svg>
-    ),
+    highlight: true,
   },
   {
-    title: "Чистота и порядок",
-    description: "Ежедневная уборка, дезинфекция, защита от грызунов и насекомых.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
-      </svg>
-    ),
+    number: "05",
+    title: "Чистота",
+    description: "Ежедневная уборка, дезинфекция, защита от грызунов.",
+    highlight: false,
   },
   {
-    title: "Гибкие условия",
-    description: "Меняйте размер бокса, продлевайте аренду онлайн. Без скрытых платежей.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-      </svg>
-    ),
+    number: "06",
+    title: "Гибко",
+    description: "Меняйте размер бокса, продлевайте онлайн. Без скрытых платежей.",
+    highlight: false,
   },
 ]
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+}
+
 export function Benefits() {
   return (
-    <section id="benefits" className="bg-secondary/50 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-12 text-center">
-          <h2 className="text-headline mb-4 text-3xl md:text-4xl">
-            Почему выбирают нас
-          </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Современный склад с европейскими стандартами хранения. Всё для вашего спокойствия.
-          </p>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {BENEFITS.map((benefit) => (
-            <div
-              key={benefit.title}
-              className="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/30 hover:shadow-lg"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                {benefit.icon}
-              </div>
-              <h3 className="mb-2 text-lg font-semibold">{benefit.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {benefit.description}
-              </p>
+    <section id="benefits" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute top-0 right-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_top_right,var(--primary)_0%,transparent_50%)] opacity-5" />
+      
+      <div className="mx-auto max-w-7xl px-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-16 md:mb-24"
+        >
+          <div className="flex items-end justify-between gap-8">
+            <div>
+              <span className="text-sm font-medium uppercase tracking-widest text-primary mb-4 block">
+                Преимущества
+              </span>
+              <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl max-w-2xl">
+                Почему выбирают <span className="text-primary">нас</span>
+              </h2>
             </div>
+            <p className="hidden lg:block max-w-sm text-lg text-muted-foreground">
+              Современный склад с европейскими стандартами. Всё для вашего спокойствия.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Benefits grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {BENEFITS.map((benefit) => (
+            <motion.div
+              key={benefit.number}
+              variants={itemVariants}
+              className={`group relative rounded-2xl p-8 transition-all duration-300 ${
+                benefit.highlight
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card hover:border-primary/50"
+              }`}
+            >
+              {/* Number */}
+              <span className={`absolute top-8 right-8 text-6xl font-black leading-none ${
+                benefit.highlight ? "text-primary-foreground/20" : "text-foreground/5"
+              }`}>
+                {benefit.number}
+              </span>
+
+              {/* Content */}
+              <div className="relative z-10 pt-16">
+                <h3 className="text-2xl font-bold mb-3">{benefit.title}</h3>
+                <p className={`leading-relaxed ${
+                  benefit.highlight ? "text-primary-foreground/80" : "text-muted-foreground"
+                }`}>
+                  {benefit.description}
+                </p>
+              </div>
+
+              {/* Hover effect for non-highlight */}
+              {!benefit.highlight && (
+                <div className="absolute inset-0 rounded-2xl bg-primary/5 opacity-0 transition-opacity group-hover:opacity-100" />
+              )}
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Bottom stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="mt-16 md:mt-24 flex flex-wrap items-center justify-center gap-8 md:gap-16"
+        >
+          <div className="text-center">
+            <div className="text-5xl font-black tracking-tight md:text-6xl">3+</div>
+            <div className="mt-2 text-sm text-muted-foreground">года на рынке</div>
+          </div>
+          <div className="h-12 w-px bg-border hidden md:block" />
+          <div className="text-center">
+            <div className="text-5xl font-black tracking-tight text-primary md:text-6xl">1500</div>
+            <div className="mt-2 text-sm text-muted-foreground">м² площадь</div>
+          </div>
+          <div className="h-12 w-px bg-border hidden md:block" />
+          <div className="text-center">
+            <div className="text-5xl font-black tracking-tight md:text-6xl">0</div>
+            <div className="mt-2 text-sm text-muted-foreground">инцидентов</div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

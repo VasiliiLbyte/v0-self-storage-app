@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
+import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 
 type Review = {
@@ -14,11 +14,11 @@ type Review = {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5">
+    <div className="flex gap-1">
       {[...Array(5)].map((_, i) => (
         <svg
           key={i}
-          className={`h-4 w-4 ${i < rating ? "text-primary" : "text-muted"}`}
+          className={`h-5 w-5 ${i < rating ? "text-primary" : "text-muted/30"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -40,9 +40,26 @@ function getInitials(name: string) {
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("ru-RU", {
+    month: "short",
     year: "numeric",
-    month: "long",
   })
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+  },
 }
 
 export function Reviews() {
@@ -66,27 +83,26 @@ export function Reviews() {
     fetchReviews()
   }, [])
 
-  // Fallback reviews if database is empty
   const displayReviews = reviews.length > 0 ? reviews : [
     {
       id: "1",
       author_name: "Алексей Петров",
       rating: 5,
-      text: "Отличный склад! Храню вещи уже год, всё в идеальном состоянии. Особенно радует круглосуточный доступ.",
+      text: "Отличный склад! Храню вещи уже год, всё в идеальном состоянии. Особенно радует круглосуточный доступ — приезжаю когда удобно.",
       created_at: "2024-01-15",
     },
     {
       id: "2",
       author_name: "Мария Иванова",
       rating: 5,
-      text: "Очень удобно во время ремонта. Мебель сохранилась отлично, климат-контроль работает. Рекомендую!",
+      text: "Очень удобно во время ремонта. Мебель сохранилась отлично, климат-контроль работает безупречно. Рекомендую всем!",
       created_at: "2024-02-20",
     },
     {
       id: "3",
       author_name: "Дмитрий Козлов",
       rating: 5,
-      text: "Использую для хранения сезонных товаров. Цены адекватные, персонал вежливый, всё чисто.",
+      text: "Использую для хранения сезонных товаров. Цены адекватные, персонал вежливый, везде чисто и приятно.",
       created_at: "2024-03-10",
     },
   ]
@@ -97,11 +113,11 @@ export function Reviews() {
 
   if (loading) {
     return (
-      <section id="reviews" className="py-20 md:py-28">
-        <div className="mx-auto max-w-6xl px-4">
+      <section id="reviews" className="py-24 md:py-32">
+        <div className="mx-auto max-w-7xl px-4">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted" />
+              <div key={i} className="h-64 animate-pulse rounded-2xl bg-muted" />
             ))}
           </div>
         </div>
@@ -110,46 +126,119 @@ export function Reviews() {
   }
 
   return (
-    <section id="reviews" className="py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-12 flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div>
-            <h2 className="text-headline mb-2 text-3xl md:text-4xl">
-              Отзывы клиентов
-            </h2>
-            <p className="text-muted-foreground">
-              Более 500 довольных клиентов доверили нам свои вещи
-            </p>
-          </div>
-          <div className="flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3">
-            <span className="text-headline text-2xl">{averageRating}</span>
-            <StarRating rating={Math.round(Number(averageRating))} />
-          </div>
-        </div>
+    <section id="reviews" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background elements */}
+      <div className="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {displayReviews.map((review) => (
-            <Card key={review.id} className="p-6">
-              <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
-                    {getInitials(review.author_name)}
-                  </div>
-                  <div>
-                    <div className="font-medium">{review.author_name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(review.created_at)}
+      <div className="relative z-10 mx-auto max-w-7xl px-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-16 md:mb-20"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <div>
+              <span className="text-sm font-medium uppercase tracking-widest text-primary mb-4 block">
+                Отзывы
+              </span>
+              <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl max-w-xl">
+                Нам <span className="text-primary">доверяют</span>
+              </h2>
+            </div>
+
+            {/* Rating badge */}
+            <div className="flex items-center gap-6 rounded-2xl border border-border bg-card p-6">
+              <div className="text-center">
+                <div className="text-5xl font-black text-primary">{averageRating}</div>
+                <div className="text-sm text-muted-foreground mt-1">из 5</div>
+              </div>
+              <div className="h-12 w-px bg-border" />
+              <div>
+                <StarRating rating={Math.round(Number(averageRating))} />
+                <div className="text-sm text-muted-foreground mt-2">
+                  {displayReviews.length}+ отзывов
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Reviews grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {displayReviews.map((review, index) => (
+            <motion.div
+              key={review.id}
+              variants={itemVariants}
+              className={`group relative rounded-2xl p-8 transition-all duration-300 ${
+                index === 0
+                  ? "bg-primary text-primary-foreground md:col-span-2 lg:col-span-1"
+                  : "border border-border bg-card hover:border-primary/30 hover:shadow-lg"
+              }`}
+            >
+              {/* Quote mark */}
+              <div className={`absolute top-6 right-6 text-6xl leading-none font-serif ${
+                index === 0 ? "text-primary-foreground/10" : "text-foreground/5"
+              }`}>
+                &ldquo;
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                <p className={`text-lg leading-relaxed mb-8 ${
+                  index === 0 ? "text-primary-foreground/90" : "text-foreground/80"
+                }`}>
+                  {review.text}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-full font-bold text-lg ${
+                      index === 0
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
+                    }`}>
+                      {getInitials(review.author_name)}
+                    </div>
+                    <div>
+                      <div className="font-semibold">{review.author_name}</div>
+                      <div className={`text-sm ${
+                        index === 0 ? "text-primary-foreground/60" : "text-muted-foreground"
+                      }`}>
+                        {formatDate(review.created_at)}
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className={index === 0 ? "opacity-80" : ""}>
+                    <StarRating rating={review.rating} />
+                  </div>
                 </div>
-                <StarRating rating={review.rating} />
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {review.text}
-              </p>
-            </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-12 text-center"
+        >
+          <p className="text-muted-foreground">
+            Присоединяйтесь к 500+ довольным клиентам
+          </p>
+        </motion.div>
       </div>
     </section>
   )

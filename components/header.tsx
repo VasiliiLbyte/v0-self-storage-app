@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
@@ -10,6 +11,7 @@ import type { User } from "@supabase/supabase-js"
 export function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -23,51 +25,84 @@ export function Header() {
       setUser(session?.user ?? null)
     })
 
-    return () => subscription.unsubscribe()
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener("scroll", handleScroll)
+
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener("scroll", handleScroll)
+    }
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-black text-primary-foreground">С</span>
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-background/90 backdrop-blur-xl border-b border-border/50 shadow-sm" 
+          : "bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
+        {/* Logo */}
+        <Link href="/" className="group flex items-center gap-3">
+          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary transition-transform group-hover:scale-105">
+            <span className="text-xl font-black text-primary-foreground">С</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">СкладТвой</span>
+          <span className="text-xl font-bold tracking-tight">
+            Склад<span className="text-primary">Твой</span>
+          </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link href="/#calculator" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Калькулятор
-          </Link>
-          <Link href="/#benefits" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Преимущества
-          </Link>
-          <Link href="/#reviews" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Отзывы
-          </Link>
+        {/* Navigation */}
+        <nav className="hidden items-center gap-10 lg:flex">
+          {[
+            { href: "/#calculator", label: "Калькулятор" },
+            { href: "/#benefits", label: "Почему мы" },
+            { href: "/#reviews", label: "Отзывы" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="group relative py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {link.label}
+              <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all group-hover:w-full" />
+            </Link>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Actions */}
+        <div className="flex items-center gap-4">
           <ThemeToggle />
+          
           {loading ? (
-            <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
+            <div className="h-10 w-24 animate-pulse rounded-full bg-muted" />
           ) : user ? (
-            <Button asChild>
-              <Link href="/dashboard">Личный кабинет</Link>
+            <Button asChild className="rounded-full px-6">
+              <Link href="/dashboard">Кабинет</Link>
             </Button>
           ) : (
             <>
-              <Button variant="ghost" asChild className="hidden sm:inline-flex">
+              <Button variant="ghost" asChild className="hidden rounded-full sm:inline-flex">
                 <Link href="/auth/login">Войти</Link>
               </Button>
-              <Button asChild>
-                <Link href="/booking">Забронировать</Link>
+              <Button asChild className="rounded-full px-6">
+                <Link href="/booking">
+                  Забронировать
+                  <svg className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
               </Button>
             </>
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }

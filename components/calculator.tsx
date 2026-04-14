@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { createClient } from "@/lib/supabase/client"
 
 type Box = {
@@ -12,43 +12,6 @@ type Box = {
   size_sqm: number
   price_monthly: number
   description: string
-}
-
-const BOX_ICONS = {
-  S: (
-    <svg viewBox="0 0 64 64" className="h-full w-full">
-      <rect x="12" y="20" width="40" height="32" rx="4" className="fill-current opacity-20" />
-      <rect x="16" y="24" width="32" height="24" rx="2" className="fill-current opacity-40" />
-      <path d="M24 36h16M32 30v12" className="stroke-current" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  ),
-  M: (
-    <svg viewBox="0 0 64 64" className="h-full w-full">
-      <rect x="8" y="16" width="48" height="36" rx="4" className="fill-current opacity-20" />
-      <rect x="12" y="20" width="40" height="28" rx="2" className="fill-current opacity-40" />
-      <rect x="20" y="28" width="10" height="12" rx="1" className="fill-current opacity-60" />
-      <rect x="34" y="28" width="10" height="12" rx="1" className="fill-current opacity-60" />
-    </svg>
-  ),
-  L: (
-    <svg viewBox="0 0 64 64" className="h-full w-full">
-      <rect x="4" y="12" width="56" height="44" rx="4" className="fill-current opacity-20" />
-      <rect x="8" y="16" width="48" height="36" rx="2" className="fill-current opacity-40" />
-      <rect x="12" y="24" width="16" height="20" rx="1" className="fill-current opacity-60" />
-      <rect x="32" y="24" width="20" height="10" rx="1" className="fill-current opacity-60" />
-      <rect x="32" y="38" width="20" height="6" rx="1" className="fill-current opacity-60" />
-    </svg>
-  ),
-  XL: (
-    <svg viewBox="0 0 64 64" className="h-full w-full">
-      <rect x="2" y="8" width="60" height="48" rx="4" className="fill-current opacity-20" />
-      <rect x="6" y="12" width="52" height="40" rx="2" className="fill-current opacity-40" />
-      <rect x="10" y="18" width="18" height="14" rx="1" className="fill-current opacity-60" />
-      <rect x="10" y="36" width="18" height="12" rx="1" className="fill-current opacity-60" />
-      <rect x="32" y="18" width="22" height="30" rx="1" className="fill-current opacity-60" />
-      <circle cx="43" cy="33" r="6" className="fill-current opacity-30" />
-    </svg>
-  ),
 }
 
 const ITEM_EXAMPLES: Record<string, string[]> = {
@@ -74,7 +37,7 @@ export function Calculator() {
       
       if (data && data.length > 0) {
         setBoxes(data)
-        setSelectedBox(data[1]) // Default to M size
+        setSelectedBox(data[1])
       }
       setLoading(false)
     }
@@ -87,8 +50,8 @@ export function Calculator() {
 
   if (loading) {
     return (
-      <section id="calculator" className="py-20 md:py-28">
-        <div className="mx-auto max-w-6xl px-4">
+      <section id="calculator" className="py-24 md:py-32 bg-secondary/30">
+        <div className="mx-auto max-w-7xl px-4">
           <div className="h-96 animate-pulse rounded-3xl bg-muted" />
         </div>
       </section>
@@ -96,72 +59,131 @@ export function Calculator() {
   }
 
   return (
-    <section id="calculator" className="py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-12 text-center">
-          <h2 className="text-headline mb-4 text-3xl md:text-4xl">
-            Подберите идеальный бокс
-          </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Выберите размер и срок аренды. Скидка 5% при аренде от 3 месяцев, 10% — от 6 месяцев.
-          </p>
-        </div>
+    <section id="calculator" className="relative py-24 md:py-32 bg-secondary/30 overflow-hidden">
+      {/* Background pattern */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-16 md:mb-20"
+        >
+          <span className="text-sm font-medium uppercase tracking-widest text-primary mb-4 block">
+            Калькулятор
+          </span>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <h2 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl max-w-xl">
+              Подберите <span className="text-primary">идеальный</span> бокс
+            </h2>
+            <p className="max-w-md text-lg text-muted-foreground">
+              Скидка 5% при аренде от 3 месяцев, 10% — от 6 месяцев
+            </p>
+          </div>
+        </motion.div>
 
         <div className="grid gap-8 lg:grid-cols-3">
-          {/* Box selection */}
-          <div className="lg:col-span-2">
+          {/* Box selection - takes 2 columns */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="lg:col-span-2"
+          >
             <div className="grid gap-4 sm:grid-cols-2">
-              {boxes.map((box) => (
-                <Card
+              {boxes.map((box, index) => (
+                <motion.div
                   key={box.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   onClick={() => setSelectedBox(box)}
-                  className={`group cursor-pointer p-6 transition-all ${
+                  className={`group relative cursor-pointer rounded-2xl p-6 transition-all duration-300 ${
                     selectedBox?.id === box.id
-                      ? "border-primary bg-primary/5 ring-2 ring-primary"
-                      : "hover:border-primary/50 hover:bg-muted/50"
+                      ? "bg-primary text-primary-foreground ring-4 ring-primary/30"
+                      : "bg-card border border-border hover:border-primary/50 hover:shadow-lg"
                   }`}
                 >
-                  <div className="mb-4 flex items-start justify-between">
-                    <div className={`h-16 w-16 ${selectedBox?.id === box.id ? "text-primary" : "text-muted-foreground"}`}>
-                      {BOX_ICONS[box.name as keyof typeof BOX_ICONS]}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-headline text-2xl">{box.name}</div>
-                      <div className="text-sm text-muted-foreground">{box.size_sqm} м²</div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <span className="text-headline text-xl">{box.price_monthly.toLocaleString("ru-RU")} ₽</span>
-                    <span className="text-muted-foreground"> / месяц</span>
+                  {/* Size badge */}
+                  <div className={`absolute top-6 right-6 text-5xl font-black leading-none ${
+                    selectedBox?.id === box.id ? "text-primary-foreground/20" : "text-foreground/5"
+                  }`}>
+                    {box.name}
                   </div>
 
-                  <p className="mb-4 text-sm text-muted-foreground">{box.description}</p>
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <span className="text-4xl font-black">{box.size_sqm}</span>
+                      <span className={`text-sm ${
+                        selectedBox?.id === box.id ? "text-primary-foreground/70" : "text-muted-foreground"
+                      }`}>м²</span>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <span className="text-2xl font-bold">{box.price_monthly.toLocaleString("ru-RU")}</span>
+                      <span className={`text-sm ml-1 ${
+                        selectedBox?.id === box.id ? "text-primary-foreground/70" : "text-muted-foreground"
+                      }`}>₽/мес</span>
+                    </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {ITEM_EXAMPLES[box.name]?.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-secondary-foreground"
-                      >
-                        {item}
-                      </span>
-                    ))}
+                    <p className={`text-sm mb-4 ${
+                      selectedBox?.id === box.id ? "text-primary-foreground/80" : "text-muted-foreground"
+                    }`}>
+                      {box.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {ITEM_EXAMPLES[box.name]?.map((item) => (
+                        <span
+                          key={item}
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            selectedBox?.id === box.id
+                              ? "bg-primary-foreground/20 text-primary-foreground"
+                              : "bg-secondary text-secondary-foreground"
+                          }`}
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </Card>
+
+                  {/* Selection indicator */}
+                  {selectedBox?.id === box.id && (
+                    <motion.div
+                      layoutId="box-indicator"
+                      className="absolute top-4 left-4 w-3 h-3 rounded-full bg-primary-foreground"
+                    />
+                  )}
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Price calculation */}
-          <div>
-            <Card className="sticky top-24 p-6">
-              <h3 className="text-headline mb-6 text-xl">Расчёт стоимости</h3>
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <div className="sticky top-28 rounded-3xl bg-card border border-border p-8 shadow-xl">
+              <h3 className="text-2xl font-bold mb-8">Итого</h3>
 
               {selectedBox && (
                 <>
-                  <div className="mb-6">
-                    <label className="mb-2 block text-sm font-medium">
+                  {/* Duration selector */}
+                  <div className="mb-8">
+                    <label className="mb-3 block text-sm font-medium text-muted-foreground uppercase tracking-wider">
                       Срок аренды
                     </label>
                     <div className="grid grid-cols-4 gap-2">
@@ -169,38 +191,60 @@ export function Calculator() {
                         <button
                           key={m}
                           onClick={() => setMonths(m)}
-                          className={`rounded-lg border py-2 text-sm font-medium transition-colors ${
+                          className={`relative rounded-xl py-3 text-sm font-semibold transition-all ${
                             months === m
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border hover:border-primary/50"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-secondary hover:bg-secondary/80"
                           }`}
                         >
-                          {m} мес
+                          {m}
+                          {m >= 3 && (
+                            <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
+                              m >= 6 ? "bg-green-500" : "bg-yellow-500"
+                            }`} />
+                          )}
                         </button>
                       ))}
                     </div>
+                    <div className="mt-2 text-xs text-muted-foreground text-center">
+                      {months === 1 && "Без скидки"}
+                      {months === 3 && "Скидка 5%"}
+                      {months === 6 && "Скидка 10%"}
+                      {months === 12 && "Скидка 10%"}
+                    </div>
                   </div>
 
-                  <div className="space-y-3 border-t border-border pt-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Бокс {selectedBox.name} × {months} мес</span>
-                      <span>{totalPrice.toLocaleString("ru-RU")} ₽</span>
+                  {/* Price breakdown */}
+                  <div className="space-y-4 border-t border-border pt-6">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Бокс {selectedBox.name}</span>
+                      <span className="font-medium">{selectedBox.price_monthly.toLocaleString("ru-RU")} ₽/мес</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Срок</span>
+                      <span className="font-medium">{months} мес</span>
                     </div>
                     {discount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
+                      <div className="flex justify-between text-green-600">
                         <span>Скидка {discount * 100}%</span>
                         <span>−{(totalPrice - finalPrice).toLocaleString("ru-RU")} ₽</span>
                       </div>
                     )}
-                    <div className="flex items-end justify-between border-t border-border pt-3">
-                      <span className="font-medium">Итого</span>
-                      <span className="text-headline text-2xl">{finalPrice.toLocaleString("ru-RU")} ₽</span>
+                    <div className="flex items-end justify-between border-t border-border pt-4">
+                      <span className="text-lg font-semibold">Итого</span>
+                      <div className="text-right">
+                        <span className="text-4xl font-black">{finalPrice.toLocaleString("ru-RU")}</span>
+                        <span className="text-lg ml-1">₽</span>
+                      </div>
                     </div>
                   </div>
 
-                  <Button asChild className="mt-6 w-full" size="lg">
+                  <Button asChild className="mt-8 w-full h-14 text-lg font-semibold rounded-full" size="lg">
                     <Link href={`/booking?box=${selectedBox.id}&months=${months}`}>
                       Забронировать
+                      <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
                     </Link>
                   </Button>
 
@@ -209,8 +253,8 @@ export function Calculator() {
                   </p>
                 </>
               )}
-            </Card>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
