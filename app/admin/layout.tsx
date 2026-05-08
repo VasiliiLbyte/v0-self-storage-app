@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminShell } from "@/components/admin-shell"
+import { todayDateStringMoscow } from "@/lib/admin/time"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -22,5 +23,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/")
   }
 
-  return <AdminShell>{children}</AdminShell>
+  const { count: overdueCount } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "active")
+    .lt("end_date", todayDateStringMoscow())
+
+  return (
+    <AdminShell overdueCount={overdueCount ?? 0}>{children}</AdminShell>
+  )
 }

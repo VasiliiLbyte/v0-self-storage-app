@@ -178,7 +178,7 @@ export function DashboardProfileForm({
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
+              accept="image/jpeg,image/png"
               className="hidden"
               onChange={handleAvatar}
             />
@@ -186,8 +186,7 @@ export function DashboardProfileForm({
               {uploading ? "Загрузка…" : "Загрузить фото"}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              Бакет <code className="text-xs">avatars</code>, путь{" "}
-              <code className="text-xs">{"{user_id}/avatar.ext}"}</code>
+              JPG или PNG, не более 5 МБ.
             </p>
           </div>
         </div>

@@ -113,7 +113,7 @@ export function AdminUnitsTable({ rows: initialRows }: { rows: AdminUnitRow[] })
             <TableHead className="text-right">Цена / мес</TableHead>
             <TableHead>Статус</TableHead>
             <TableHead>Арендатор</TableHead>
-            <TableHead className="text-center">Обслуж.</TableHead>
+            <TableHead className="text-center">Обслуживание</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

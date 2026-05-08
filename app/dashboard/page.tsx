@@ -1,14 +1,17 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import {
-  LayoutDashboard,
   Package,
   CreditCard,
   User,
   KeyRound,
   ChevronRight,
+  CheckCircle,
+  Wallet,
+  MapPin,
+  Clock,
+  Mail,
 } from "lucide-react"
 
 const SECTIONS = [
@@ -22,6 +25,13 @@ function utcMonthBounds(d = new Date()) {
   const start = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1, 0, 0, 0, 0))
   const end = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1, 0, 0, 0, 0))
   return { startIso: start.toISOString(), endIso: end.toISOString() }
+}
+
+function greetingPhrase() {
+  const h = new Date().getHours()
+  if (h < 12) return "Доброе утро"
+  if (h < 18) return "Добрый день"
+  return "Добрый вечер"
 }
 
 export default async function DashboardOverviewPage() {
@@ -51,65 +61,133 @@ export default async function DashboardOverviewPage() {
 
   const currentMonthSpend = (monthPayments ?? []).reduce((sum, p) => sum + (p.amount ?? 0), 0)
 
+  const metaFull =
+    typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.trim() : ""
+  const greetingName =
+    profile?.full_name?.trim().split(/\s+/)[0] ||
+    metaFull.split(/\s+/).filter(Boolean)[0] ||
+    user.email?.split("@")[0] ||
+    "друг"
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-10">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-            <LayoutDashboard className="h-4 w-4" />
-            Обзор
-          </div>
-          <h1 className="text-headline text-2xl md:text-3xl">Личный кабинет</h1>
-          <p className="mt-1 text-muted-foreground">
-            {profile?.full_name || user.email} — управление арендой и оплатами
+          <h1 className="text-headline text-2xl font-bold tracking-tight md:text-3xl">
+            {greetingPhrase()}, {greetingName}! 👋
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Ваши мини-склады ПЕЛИКАН · Петроградская сторона
           </p>
         </div>
-        <Button asChild className="shrink-0">
+        <Button asChild className="hidden shrink-0 sm:inline-flex">
           <Link href="/booking">Новое бронирование</Link>
         </Button>
       </div>
 
+      <Button asChild className="w-full sm:hidden">
+        <Link href="/booking">Новое бронирование</Link>
+      </Button>
+
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-5">
-          <div className="text-sm text-muted-foreground">Активных боксов</div>
-          <div className="text-headline mt-1 text-3xl tabular-nums">{activeCount}</div>
-          <p className="mt-2 text-xs text-muted-foreground">
+        <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-primary/20 to-primary/5 p-6 shadow-sm">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
+            <Package className="h-8 w-8" strokeWidth={1.75} aria-hidden />
+          </div>
+          <div className="text-headline text-4xl tabular-nums leading-none">{activeCount}</div>
+          <p className="mt-2 text-sm font-medium text-foreground">Активных боксов</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Аренды со статусом «активна» или «ожидает оплаты»
           </p>
-        </Card>
-        <Card className="p-5">
-          <div className="text-sm text-muted-foreground">Завершённых</div>
-          <div className="text-headline mt-1 text-3xl tabular-nums">{completedCount}</div>
-          <p className="mt-2 text-xs text-muted-foreground">Аренды со статусом «завершена»</p>
-        </Card>
-        <Card className="p-5">
-          <div className="text-sm text-muted-foreground">Текущие расходы</div>
-          <div className="text-headline mt-1 text-3xl tabular-nums">
+        </div>
+        <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-blue-500/20 to-blue-500/5 p-6 shadow-sm">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+            <CheckCircle className="h-8 w-8" strokeWidth={1.75} aria-hidden />
+          </div>
+          <div className="text-headline text-4xl tabular-nums leading-none">{completedCount}</div>
+          <p className="mt-2 text-sm font-medium text-foreground">Завершённых</p>
+          <p className="mt-1 text-xs text-muted-foreground">Аренды со статусом «завершена»</p>
+        </div>
+        <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-green-500/20 to-green-500/5 p-6 shadow-sm sm:col-span-1">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/15 text-green-600 dark:text-green-400">
+            <Wallet className="h-8 w-8" strokeWidth={1.75} aria-hidden />
+          </div>
+          <div className="text-headline text-4xl tabular-nums leading-none">
             {currentMonthSpend.toLocaleString("ru-RU")} ₽
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2 text-sm font-medium text-foreground">Текущие расходы</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Успешные платежи за текущий календарный месяц (UTC)
           </p>
-        </Card>
+        </div>
+      </div>
+
+      {activeCount === 0 ? (
+        <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-orange-500 p-6 text-primary-foreground shadow-lg md:p-8">
+          <div className="max-w-xl space-y-3">
+            <h2 className="text-xl font-bold md:text-2xl">53 ячейки — найдите свою за пару минут</h2>
+            <p className="text-sm text-primary-foreground/90 md:text-base">
+              Выберите размер, даты и оформите бронирование онлайн. Доступ к складу круглосуточно.
+            </p>
+            <Button asChild variant="secondary" className="mt-2 font-semibold">
+              <Link href="/booking">Забронировать ячейку</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      <div>
+        <h2 className="mb-4 text-lg font-semibold">Быстрые действия</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {SECTIONS.map(({ href, label, desc, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+                <Icon className="h-6 w-6" aria-hidden />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-foreground">{label}</div>
+                <div className="text-sm text-muted-foreground">{desc}</div>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ))}
+        </div>
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-semibold">Разделы</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {SECTIONS.map(({ href, label, desc, icon: Icon }) => (
-            <Link key={href} href={href}>
-              <Card className="flex h-full items-center gap-4 p-4 transition-colors hover:bg-muted/50">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">{label}</div>
-                  <div className="text-sm text-muted-foreground">{desc}</div>
-                </div>
-                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-              </Card>
-            </Link>
-          ))}
+        <h2 className="mb-4 text-lg font-semibold">Полезная информация</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+              <MapPin className="h-5 w-5 text-primary" aria-hidden />
+            </div>
+            <h3 className="font-semibold">Адрес склада</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Мытнинская наб., 5/7
+              <br />
+              м. Горьковская / Петроградская
+              <br />
+              Доступ 24/7
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+              <Clock className="h-5 w-5 text-primary" aria-hidden />
+            </div>
+            <h3 className="font-semibold">Поддержка</h3>
+            <p className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <span>Пн–Вс, ответ в течение дня</span>
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">hello@pelikan-storage.ru</p>
+            <Button asChild variant="outline" className="mt-4 w-full sm:w-auto">
+              <a href="mailto:hello@pelikan-storage.ru">Написать</a>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

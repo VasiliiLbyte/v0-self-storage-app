@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { AdminBookingsFilters } from "@/components/admin-bookings-filters"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -93,6 +94,16 @@ async function BookingsTable({ search }: { search: Search }) {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {(rows ?? []).length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={7}
+                className="py-16 text-center text-sm text-muted-foreground"
+              >
+                Нет данных для отображения
+              </TableCell>
+            </TableRow>
+          )}
           {(rows ?? []).map((b) => {
             const profile = oneRelation(b.profiles) as {
               full_name: string | null
@@ -146,11 +157,16 @@ export default async function AdminBookingsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Бронирования</h1>
-        <p className="text-sm text-muted-foreground">
-          Фильтры по статусу, типу ячейки и дате создания. Поиск по имени/email в профиле.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Бронирования</h1>
+          <p className="text-sm text-muted-foreground">
+            Фильтры по статусу, типу ячейки и дате создания. Поиск по имени/email в профиле.
+          </p>
+        </div>
+        <Button asChild className="shrink-0">
+          <Link href="/booking">Новое бронирование</Link>
+        </Button>
       </div>
       <Suspense fallback={<div className="h-24 animate-pulse rounded-lg bg-muted" />}>
         <AdminBookingsFilters />

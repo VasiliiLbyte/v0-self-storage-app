@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 
 export function Footer() {
@@ -43,7 +44,13 @@ export function Footer() {
           <div>
             <Link href="/" className="mb-6 flex items-center gap-3 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary transition-transform group-hover:scale-105">
-                <span className="text-2xl font-black text-primary-foreground">П</span>
+                <Image
+                  src="/images/pelican_logo_white_200px.webp"
+                  alt="ПЕЛИКАН"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
               </div>
               <span className="text-2xl font-bold tracking-tight">ПЕЛИКАН</span>
             </Link>
@@ -90,17 +97,17 @@ export function Footer() {
             <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Контакты</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href="tel:+74951234567" className="text-accent-foreground/70 transition-colors hover:text-primary font-mono">
-                  +7 (495) 123-45-67
+                <a href="tel:+78120000000" className="text-accent-foreground/70 transition-colors hover:text-primary font-mono">
+                  +7 (812) 000-00-00
                 </a>
               </li>
               <li>
-                <a href="mailto:info@skladtvoy.ru" className="text-accent-foreground/70 transition-colors hover:text-primary">
-                  info@skladtvoy.ru
+                <a href="mailto:hello@pelikan-storage.ru" className="text-accent-foreground/70 transition-colors hover:text-primary">
+                  hello@pelikan-storage.ru
                 </a>
               </li>
               <li className="text-accent-foreground/70">
-                СПб, Петроградская сторона
+                Мытнинская наб., 5/7, Санкт-Петербург
               </li>
             </ul>
           </div>

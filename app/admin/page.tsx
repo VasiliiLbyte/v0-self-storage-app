@@ -1,6 +1,8 @@
+import { Package, TrendingUp } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AdminDashboardCharts } from "@/components/admin-dashboard-charts"
+import { cn } from "@/lib/utils"
 import {
   revenueMonthOverMonth,
   occupancyByType,
@@ -83,17 +85,22 @@ export default async function AdminDashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Дашборд</h1>
-        <p className="text-sm text-muted-foreground">
-          KPI и графики. Месячная выручка — UTC; просрочка — по дате окончания (Europe/Moscow).
-        </p>
+        <p className="text-sm text-muted-foreground">Сводка показателей</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Выручка (текущий / прошлый месяц, UTC)
             </CardTitle>
+            <TrendingUp
+              className={cn(
+                "h-5 w-5 shrink-0",
+                changePct >= 0 ? "text-green-600" : "text-red-600",
+              )}
+              aria-hidden
+            />
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">
@@ -107,10 +114,11 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Активные аренды
             </CardTitle>
+            <Package className="h-5 w-5 shrink-0 text-primary" aria-hidden />
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-semibold">{activeRentalsCount ?? 0}</p>
@@ -138,7 +146,11 @@ export default async function AdminDashboardPage() {
             <p className="text-2xl font-semibold">{newClientsCount ?? 0}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          className={cn(
+            overdueCount > 0 && "border-destructive/30 bg-destructive/10",
+          )}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Просроченные active

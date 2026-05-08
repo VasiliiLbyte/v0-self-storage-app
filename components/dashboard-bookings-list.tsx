@@ -3,8 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Package } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { DashboardEmptyState } from "@/components/dashboard-empty-state"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -177,12 +179,13 @@ export function DashboardBookingsList({
         Активные и ожидающие
       </h2>
       {activeBookings.length === 0 ? (
-        <Card className="mb-8 p-8 text-center text-muted-foreground">
-          Нет активных аренд.{" "}
-          <Link href="/booking" className="text-primary underline">
-            Забронировать
-          </Link>
-        </Card>
+        <DashboardEmptyState
+          className="mb-8"
+          icon={Package}
+          title="Ещё нет аренд"
+          description="Забронируйте первый бокс — это займёт 2 минуты"
+          action={{ label: "Забронировать бокс", href: "/booking" }}
+        />
       ) : (
         <div className="mb-8 space-y-4">{activeBookings.map(renderCard)}</div>
       )}

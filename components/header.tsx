@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -50,8 +51,15 @@ export function Header() {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="group flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary transition-transform group-hover:scale-105">
-            <span className="text-xl font-black text-primary-foreground">П</span>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary transition-transform group-hover:scale-105">
+            <Image
+              src="/images/pelican_logo_white_200px.webp"
+              alt="ПЕЛИКАН"
+              width={32}
+              height={32}
+              className="object-contain"
+              priority
+            />
           </div>
           <span className="text-xl font-bold tracking-tight">ПЕЛИКАН</span>
         </Link>
@@ -60,6 +68,7 @@ export function Header() {
         <nav className="hidden items-center gap-10 lg:flex">
           {[
             { href: "/#calculator", label: "Калькулятор" },
+            { href: "/storage-units", label: "Ячейки" },
             { href: "/#benefits", label: "Почему мы" },
             { href: "/#reviews", label: "Отзывы" },
           ].map((link) => (

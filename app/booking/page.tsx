@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -22,8 +21,34 @@ type Box = {
   in_maintenance?: boolean
 }
 
+const SIZE_ORDER = ["XS", "S", "M", "L"] as const
+type SizeType = (typeof SIZE_ORDER)[number]
+
+function isSizeType(v: string): v is SizeType {
+  return (SIZE_ORDER as readonly string[]).includes(v)
+}
+
+const SIZE_META: Record<SizeType, { title: string; hint: string }> = {
+  XS: {
+    title: "XS",
+    hint: "Документы, ручная кладь, мелкая техника",
+  },
+  S: {
+    title: "S",
+    hint: "Сезонная одежда, документы, спортинвентарь",
+  },
+  M: {
+    title: "M",
+    hint: "Мебель из комнаты, велосипеды, бытовая техника",
+  },
+  L: {
+    title: "L",
+    hint: "Вещи из квартиры, оборудование, запасы",
+  },
+}
+
 const STEPS = [
-  { id: 1, name: "Размер", description: "Выберите бокс" },
+  { id: 1, name: "Размер", description: "Категория и бокс" },
   { id: 2, name: "Срок", description: "Период аренды" },
   { id: 3, name: "Данные", description: "Контактная информация" },
   { id: 4, name: "Оплата", description: "Подтверждение" },
@@ -35,6 +60,8 @@ function BookingContent() {
   const [step, setStep] = useState(1)
   const [boxes, setBoxes] = useState<Box[]>([])
   const [selectedBox, setSelectedBox] = useState<Box | null>(null)
+  const [sizePickPhase, setSizePickPhase] = useState<"category" | "unit">("category")
+  const [selectedSize, setSelectedSize] = useState<SizeType | null>(null)
   const [months, setMonths] = useState(1)
   const [startDate, setStartDate] = useState("")
   const [user, setUser] = useState<User | null>(null)
@@ -46,6 +73,7 @@ function BookingContent() {
     email: "",
     phone: "",
   })
+  const [phoneError, setPhoneError] = useState("")
 
   useEffect(() => {
     const supabase = createClient()
@@ -60,22 +88,39 @@ function BookingContent() {
       if (data) {
         setBoxes(data)
         const boxId = searchParams.get("box")
-        const preselected = data.find(b => b.id === boxId)
+        const preselected = data.find((b) => b.id === boxId)
         if (preselected) {
           setSelectedBox(preselected)
+          if (isSizeType(preselected.type)) {
+            setSelectedSize(preselected.type)
+            setSizePickPhase("unit")
+          }
           setStep(2)
+        } else {
+          const rawType = searchParams.get("type")
+          const urlType = rawType?.trim().toUpperCase()
+          if (urlType && isSizeType(urlType)) {
+            setSelectedSize(urlType)
+            setSizePickPhase("unit")
+          }
         }
       }
     })
 
-    // Check auth
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    // Auth + profile phone (wait before hiding loader)
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUser(user)
       if (user) {
-        setFormData(prev => ({
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("phone")
+          .eq("id", user.id)
+          .maybeSingle()
+        setFormData((prev) => ({
           ...prev,
           email: user.email || "",
           name: user.user_metadata?.full_name || "",
+          ...(profile?.phone ? { phone: profile.phone } : {}),
         }))
       }
       setLoading(false)
@@ -192,6 +237,30 @@ function BookingContent() {
     window.location.href = payJson.confirmation_url
   }
 
+  const goBackStep = () => {
+    if (step === 2) {
+      setStep(1)
+      if (selectedBox && isSizeType(selectedBox.type)) {
+        setSelectedSize(selectedBox.type)
+        setSizePickPhase("unit")
+      }
+      return
+    }
+    if (step === 3 || step === 4) {
+      setPhoneError("")
+    }
+    setStep((s) => s - 1)
+  }
+
+  const backToCategories = () => {
+    setSelectedBox(null)
+    setSelectedSize(null)
+    setSizePickPhase("category")
+  }
+
+  const boxesInCategory =
+    selectedSize === null ? [] : boxes.filter((b) => b.type === selectedSize)
+
   const canProceed = () => {
     switch (step) {
       case 1:
@@ -199,10 +268,21 @@ function BookingContent() {
       case 2:
         return months > 0 && !!startDate
       case 3:
-        return formData.name && formData.email && formData.phone
+        return !!(formData.name && formData.email)
       default:
         return true
     }
+  }
+
+  const goNext = () => {
+    if (step === 3) {
+      if (!formData.phone.trim()) {
+        setPhoneError("Укажите номер телефона")
+        return
+      }
+      setPhoneError("")
+    }
+    setStep((s) => s + 1)
   }
 
   if (loading) {
@@ -264,38 +344,90 @@ function BookingContent() {
               {/* Step 1: Box Selection */}
               {step === 1 && (
                 <div>
-                  <h1 className="text-headline mb-2 text-2xl md:text-3xl">Выберите размер бокса</h1>
-                  <p className="mb-6 text-muted-foreground">
-                    Подберите подходящий размер для ваших вещей
-                  </p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {boxes.map((box) => (
-                      <Card
-                        key={box.id}
-                        onClick={() => setSelectedBox(box)}
-                        className={`cursor-pointer p-5 transition-all ${
-                          selectedBox?.id === box.id
-                            ? "border-primary ring-2 ring-primary"
-                            : "hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="mb-3 flex items-center justify-between">
-                          <span className="text-headline text-2xl">{box.name}</span>
-                          <span className="rounded-full bg-secondary px-3 py-1 text-sm">
-                            {box.size_m2} м²
-                          </span>
-                        </div>
-                        <p className="mb-1 text-xs text-muted-foreground">
-                          {box.type} · №{box.number}
-                        </p>
-                        <p className="mb-3 text-sm text-muted-foreground">{box.description}</p>
-                        <div className="text-lg font-semibold">
-                          {box.price_month.toLocaleString("ru-RU")} ₽
-                          <span className="text-sm font-normal text-muted-foreground"> / мес</span>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
+                  {sizePickPhase === "category" ? (
+                    <>
+                      <h1 className="text-headline mb-2 text-2xl md:text-3xl">
+                        Выберите категорию размера
+                      </h1>
+                      <p className="mb-6 text-muted-foreground">
+                        Сначала XS, S, M или L — затем конкретную ячейку
+                      </p>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {SIZE_ORDER.map((size) => (
+                          <Card
+                            key={size}
+                            onClick={() => {
+                              setSelectedSize(size)
+                              setSizePickPhase("unit")
+                            }}
+                            className="cursor-pointer p-5 transition-all hover:border-primary/50"
+                          >
+                            <div className="mb-2 flex items-center justify-between">
+                              <span className="text-headline text-2xl">
+                                {SIZE_META[size].title}
+                              </span>
+                              <span className="rounded-full bg-secondary px-3 py-1 text-sm">
+                                категория
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {SIZE_META[size].hint}
+                            </p>
+                          </Card>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-4">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="px-0 text-muted-foreground hover:text-foreground"
+                          onClick={backToCategories}
+                        >
+                          ← К категориям
+                        </Button>
+                      </div>
+                      <h1 className="text-headline mb-2 text-2xl md:text-3xl">
+                        Выберите ячейку ({selectedSize})
+                      </h1>
+                      <p className="mb-6 text-muted-foreground">
+                        Подберите конкретный бокс в выбранной категории
+                      </p>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {boxesInCategory.map((box) => (
+                          <Card
+                            key={box.id}
+                            onClick={() => setSelectedBox(box)}
+                            className={`cursor-pointer p-5 transition-all ${
+                              selectedBox?.id === box.id
+                                ? "border-primary ring-2 ring-primary"
+                                : "hover:border-primary/50"
+                            }`}
+                          >
+                            <div className="mb-3 flex items-center justify-between">
+                              <span className="text-headline text-2xl">{box.name}</span>
+                              <span className="rounded-full bg-secondary px-3 py-1 text-sm">
+                                {box.size_m2} м²
+                              </span>
+                            </div>
+                            <p className="mb-1 text-xs text-muted-foreground">
+                              {box.type} · №{box.number}
+                            </p>
+                            <p className="mb-3 text-sm text-muted-foreground">{box.description}</p>
+                            <div className="text-lg font-semibold">
+                              {box.price_month.toLocaleString("ru-RU")} ₽
+                              <span className="text-sm font-normal text-muted-foreground">
+                                {" "}
+                                / мес
+                              </span>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -376,9 +508,16 @@ function BookingContent() {
                       <Input
                         type="tel"
                         value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) => {
+                          setPhoneError("")
+                          setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                        }}
                         placeholder="+7 (999) 123-45-67"
+                        aria-invalid={!!phoneError}
                       />
+                      {phoneError ? (
+                        <p className="mt-1.5 text-sm text-destructive">{phoneError}</p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -472,7 +611,7 @@ function BookingContent() {
                   {step > 1 && (
                     <Button
                       variant="outline"
-                      onClick={() => setStep(step - 1)}
+                      onClick={goBackStep}
                       className="flex-1"
                     >
                       Назад
@@ -480,7 +619,7 @@ function BookingContent() {
                   )}
                   {step < 4 ? (
                     <Button
-                      onClick={() => setStep(step + 1)}
+                      onClick={goNext}
                       disabled={!canProceed()}
                       className="flex-1"
                     >

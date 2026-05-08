@@ -113,30 +113,28 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Bottom decorative boxes */}
+        {/* UTP highlights */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="mt-20 flex items-end gap-3"
+          className="mt-20 grid gap-4 sm:grid-cols-3"
         >
-          <div className="h-16 w-16 rounded-lg bg-primary md:h-24 md:w-24" />
-          <div className="h-12 w-12 rounded-lg border-2 border-accent md:h-20 md:w-20" />
-          <div className="h-20 w-20 rounded-lg bg-accent/20 md:h-28 md:w-28" />
-          <div className="hidden h-10 w-10 rounded-lg border-2 border-primary/50 sm:block md:h-16 md:w-16" />
-          <div className="hidden h-14 w-14 rounded-lg bg-muted sm:block md:h-20 md:w-20" />
-          <div className="ml-auto hidden text-right lg:block">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Скролл</div>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="mt-2"
+          {[
+            { emoji: "🔐", label: "Охрана 24/7" },
+            { emoji: "📍", label: "Центр Петербурга" },
+            { emoji: "⚡", label: "Доступ за 30 сек" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-4 text-left transition-colors hover:border-primary/40 md:px-5 md:py-5"
             >
-              <svg className="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </motion.div>
-          </div>
+              <span className="text-2xl leading-none md:text-3xl" aria-hidden>
+                {item.emoji}
+              </span>
+              <span className="text-sm font-semibold md:text-base">{item.label}</span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

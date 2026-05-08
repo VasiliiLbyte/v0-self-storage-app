@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -54,8 +55,14 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="mb-4 inline-flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-xl font-black text-primary-foreground">П</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+              <Image
+                src="/images/pelican_logo_white_200px.webp"
+                alt="ПЕЛИКАН"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
             <span className="text-2xl font-bold tracking-tight">ПЕЛИКАН</span>
           </Link>

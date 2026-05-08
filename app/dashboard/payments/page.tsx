@@ -1,8 +1,9 @@
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { oneRelation } from "@/lib/supabase-relations"
+import { CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { DashboardEmptyState } from "@/components/dashboard-empty-state"
 import {
   Table,
   TableBody,
@@ -51,15 +52,10 @@ export default async function DashboardPaymentsPage() {
         <p className="mt-1 text-muted-foreground">История оплат и ссылки на чеки</p>
       </div>
 
-      <Card className="overflow-hidden">
-        {!rows?.length ? (
-          <div className="p-10 text-center text-muted-foreground">
-            Платежей пока нет.{" "}
-            <Link href="/booking" className="text-primary underline">
-              Оформить бронирование
-            </Link>
-          </div>
-        ) : (
+      {!rows?.length ? (
+        <DashboardEmptyState icon={CreditCard} title="История платежей пуста" />
+      ) : (
+        <Card className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -123,8 +119,8 @@ export default async function DashboardPaymentsPage() {
               })}
             </TableBody>
           </Table>
-        )}
-      </Card>
+        </Card>
+      )}
       <p className="mt-4 text-xs text-muted-foreground">
         Для оплаченных платежей квитанции доступны в личном кабинете ЮKassa; для незавершённых — по ссылке
         оплаты.

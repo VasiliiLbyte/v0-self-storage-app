@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { oneRelation } from "@/lib/supabase-relations"
+import { KeyRound } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { DashboardEmptyState } from "@/components/dashboard-empty-state"
 
 export default async function DashboardAccessPage() {
   const supabase = await createClient()
@@ -36,12 +38,12 @@ export default async function DashboardAccessPage() {
       </div>
 
       {!bookings?.length ? (
-        <Card className="p-10 text-center text-muted-foreground">
-          Нет активных аренд с кодом доступа.{" "}
-          <Link href="/booking" className="text-primary underline">
-            Забронировать бокс
-          </Link>
-        </Card>
+        <DashboardEmptyState
+          icon={KeyRound}
+          title="Коды доступа появятся после первой аренды"
+          description="Оформите бронирование — код для терминала и охраны появится здесь после активации аренды."
+          action={{ label: "Забронировать", href: "/booking" }}
+        />
       ) : (
         <div className="space-y-8">
           {bookings.map((b) => {

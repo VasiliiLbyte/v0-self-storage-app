@@ -19,21 +19,9 @@ export const metadata: Metadata = {
   generator: 'v0.app',
   keywords: ['склад', 'хранение вещей', 'селф-сторадж', 'аренда бокса', 'Санкт-Петербург'],
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/images/favicon_32x32.png',
+    apple: '/images/favicon_32x32.png',
+    shortcut: '/images/favicon_32x32.png',
   },
 }
 

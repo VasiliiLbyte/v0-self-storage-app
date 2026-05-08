@@ -21,7 +21,7 @@ export default async function DashboardLayout({
   return (
     <>
       <Header />
-      <main className="min-h-[calc(100vh-4rem)] bg-muted/30">
+      <main className="min-h-[calc(100vh-5rem)] bg-muted/30 pt-20">
         <DashboardShell>{children}</DashboardShell>
       </main>
       <Footer />

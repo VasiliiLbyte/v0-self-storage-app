@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { oneRelation } from "@/lib/supabase-relations"
+import { FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { DashboardEmptyState } from "@/components/dashboard-empty-state"
 
 const TYPE_LABEL: Record<string, string> = {
   contract: "Договор",
@@ -43,10 +45,10 @@ export default async function DashboardDocumentsPage() {
       </div>
 
       {!docs?.length ? (
-        <Card className="p-10 text-center text-muted-foreground">
-          Документов пока нет. После оформления аренды они появятся здесь (PDF в Supabase Storage,
-          путь <code className="text-xs">documents/{`{user_id}`}/…</code>).
-        </Card>
+        <DashboardEmptyState
+          icon={FileText}
+          title="Договоры и акты появятся здесь после оформления аренды"
+        />
       ) : (
         <div className="space-y-3">
           {docs.map((d) => {

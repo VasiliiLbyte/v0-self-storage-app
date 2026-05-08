@@ -35,7 +35,13 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export function AdminNav({ variant }: { variant: "desktop" | "mobile" }) {
+export function AdminNav({
+  variant,
+  overdueCount = 0,
+}: {
+  variant: "desktop" | "mobile"
+  overdueCount?: number
+}) {
   const pathname = usePathname()
 
   if (variant === "mobile") {
@@ -43,6 +49,7 @@ export function AdminNav({ variant }: { variant: "desktop" | "mobile" }) {
       <nav className="flex justify-around gap-0.5 px-0.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1">
         {ITEMS.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(pathname, href, exact)
+          const showOverdue = href === "/admin/bookings" && overdueCount > 0
           return (
             <Link
               key={href}
@@ -50,11 +57,21 @@ export function AdminNav({ variant }: { variant: "desktop" | "mobile" }) {
               className={cn(
                 "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-0.5 py-2 text-[9px] font-medium leading-tight transition-colors",
                 active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-primary font-semibold text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="relative inline-flex">
+                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                {showOverdue ? (
+                  <span
+                    className="absolute -right-1.5 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-0.5 text-[8px] font-bold leading-none text-destructive-foreground"
+                    aria-label={`Просроченных аренд: ${overdueCount}`}
+                  >
+                    {overdueCount > 99 ? "99" : overdueCount}
+                  </span>
+                ) : null}
+              </span>
               <span className="line-clamp-2 text-center">{label}</span>
             </Link>
           )
@@ -70,6 +87,7 @@ export function AdminNav({ variant }: { variant: "desktop" | "mobile" }) {
       </p>
       {ITEMS.map(({ href, label, icon: Icon, exact }) => {
         const active = isActive(pathname, href, exact)
+        const showOverdue = href === "/admin/bookings" && overdueCount > 0
         return (
           <Link
             key={href}
@@ -77,12 +95,25 @@ export function AdminNav({ variant }: { variant: "desktop" | "mobile" }) {
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary font-semibold text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             <Icon className="h-5 w-5 shrink-0" aria-hidden />
-            {label}
+            <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+              <span className="truncate">{label}</span>
+              {showOverdue ? (
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full bg-destructive px-1.5 py-0.5 text-xs font-semibold tabular-nums text-destructive-foreground",
+                    active && "ring-1 ring-destructive-foreground/30",
+                  )}
+                  aria-label={`Просроченных аренд: ${overdueCount}`}
+                >
+                  {overdueCount > 999 ? "999+" : overdueCount}
+                </span>
+              ) : null}
+            </span>
           </Link>
         )
       })}

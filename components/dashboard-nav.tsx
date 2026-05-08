@@ -48,8 +48,8 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
               className={cn(
                 "flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-[10px] font-medium transition-colors",
                 active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-primary font-semibold text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               <Icon className="h-5 w-5 shrink-0" aria-hidden />
@@ -62,10 +62,7 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
   }
 
   return (
-    <nav className="sticky top-24 space-y-1">
-      <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Кабинет
-      </p>
+    <nav className="space-y-1">
       {ITEMS.map(({ href, label, icon: Icon, exact }) => {
         const active = isActive(pathname, href, exact)
         return (
@@ -75,7 +72,7 @@ export function DashboardNav({ variant }: { variant: "desktop" | "mobile" }) {
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary font-semibold text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
