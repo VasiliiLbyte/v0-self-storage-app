@@ -198,7 +198,7 @@ export default function NotFound() {
       {/* Corner decorations */}
       <div className="absolute top-6 left-6">
         <Link href="/" className="text-2xl font-black tracking-tight text-foreground hover:text-primary transition-colors">
-          СкладТвой
+          ПЕЛИКАН
         </Link>
       </div>
       <div className="absolute top-6 right-6 text-sm text-muted-foreground font-mono">

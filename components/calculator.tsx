@@ -9,16 +9,19 @@ import { createClient } from "@/lib/supabase/client"
 type Box = {
   id: string
   name: string
-  size_sqm: number
-  price_monthly: number
+  type: string
+  number: number
+  size_m2: number
+  price_month: number
   description: string
+  in_maintenance?: boolean
 }
 
 const ITEM_EXAMPLES: Record<string, string[]> = {
+  XS: ["Документы", "Ручная кладь", "Мелкая техника"],
   S: ["Сезонная одежда", "Документы", "Спортинвентарь"],
   M: ["Мебель из комнаты", "Велосипеды", "Бытовая техника"],
   L: ["Вещи из квартиры", "Оборудование", "Товарные запасы"],
-  XL: ["Переезд целиком", "Автозапчасти", "Крупный бизнес"],
 }
 
 export function Calculator() {
@@ -33,18 +36,21 @@ export function Calculator() {
       const { data } = await supabase
         .from("boxes")
         .select("*")
-        .order("size_sqm", { ascending: true })
+        .eq("in_maintenance", false)
+        .order("number", { ascending: true })
       
       if (data && data.length > 0) {
         setBoxes(data)
-        setSelectedBox(data[1])
+        const defaultBox =
+          data.find((b) => b.type === "S") ?? data[Math.floor(data.length / 2)] ?? data[0]
+        setSelectedBox(defaultBox)
       }
       setLoading(false)
     }
     fetchBoxes()
   }, [])
 
-  const totalPrice = selectedBox ? selectedBox.price_monthly * months : 0
+  const totalPrice = selectedBox ? selectedBox.price_month * months : 0
   const discount = months >= 6 ? 0.1 : months >= 3 ? 0.05 : 0
   const finalPrice = Math.round(totalPrice * (1 - discount))
 
@@ -122,14 +128,14 @@ export function Calculator() {
                   {/* Content */}
                   <div className="relative z-10">
                     <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-4xl font-black">{box.size_sqm}</span>
+                      <span className="text-4xl font-black">{box.size_m2}</span>
                       <span className={`text-sm ${
                         selectedBox?.id === box.id ? "text-primary-foreground/70" : "text-muted-foreground"
                       }`}>м²</span>
                     </div>
                     
                     <div className="mb-4">
-                      <span className="text-2xl font-bold">{box.price_monthly.toLocaleString("ru-RU")}</span>
+                      <span className="text-2xl font-bold">{box.price_month.toLocaleString("ru-RU")}</span>
                       <span className={`text-sm ml-1 ${
                         selectedBox?.id === box.id ? "text-primary-foreground/70" : "text-muted-foreground"
                       }`}>₽/мес</span>
@@ -142,7 +148,7 @@ export function Calculator() {
                     </p>
 
                     <div className="flex flex-wrap gap-2">
-                      {ITEM_EXAMPLES[box.name]?.map((item) => (
+                      {ITEM_EXAMPLES[box.type]?.map((item) => (
                         <span
                           key={item}
                           className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -218,7 +224,7 @@ export function Calculator() {
                   <div className="space-y-4 border-t border-border pt-6">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Бокс {selectedBox.name}</span>
-                      <span className="font-medium">{selectedBox.price_monthly.toLocaleString("ru-RU")} ₽/мес</span>
+                      <span className="font-medium">{selectedBox.price_month.toLocaleString("ru-RU")} ₽/мес</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Срок</span>

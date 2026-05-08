@@ -1,0 +1,24 @@
+---
+description: Core development workflow and safety checks
+alwaysApply: true
+---
+
+# Development Workflow (Project Default)
+
+## Plan and verify before coding
+
+- Reuse existing patterns in the repo before adding new abstractions.
+- Keep changes scoped: one task, one coherent diff.
+- For non-trivial changes, define a short checklist: implementation, validation, docs.
+
+## Safety and change discipline
+
+- Never break existing user flows: landing, auth, booking, dashboard.
+- Prefer incremental refactors over broad rewrites.
+- Do not introduce silent fallbacks that hide errors.
+
+## Definition of done
+
+- Run relevant checks (`lint`, build/type checks if touched areas are sensitive).
+- Update docs when behavior, setup, or env requirements change.
+- Include clear error handling and user-facing messages for failure states.

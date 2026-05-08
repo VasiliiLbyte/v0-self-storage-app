@@ -1,0 +1,30 @@
+---
+description: Next.js App Router and TypeScript conventions
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Next.js + TypeScript Conventions
+
+## App Router boundaries
+
+- Keep server logic in server contexts (`app/*` server components, route handlers, middleware).
+- Add `"use client"` only when interactivity is required.
+- Do not access browser APIs from server components.
+
+## Supabase usage
+
+- Use `lib/supabase/server.ts` in server contexts and `lib/supabase/client.ts` in client contexts.
+- Keep auth/session flow consistent with existing callback and middleware implementation.
+- Prefer explicit null/error handling for Supabase responses; avoid non-null assumptions on data.
+
+## Type and state quality
+
+- Avoid `any`; model external data with explicit types.
+- Keep components focused and small; extract reusable UI/state logic into hooks or helpers.
+- Validate user input at boundaries (forms, query params, external responses).
+
+## UX and failure behavior
+
+- Show actionable error messages for auth, booking, and profile update failures.
+- Preserve loading and empty states for async pages/components.

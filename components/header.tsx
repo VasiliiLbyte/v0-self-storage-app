@@ -40,7 +40,7 @@ export function Header() {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
           ? "bg-background/90 backdrop-blur-xl border-b border-border/50 shadow-sm" 
@@ -51,11 +51,9 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="group flex items-center gap-3">
           <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-primary transition-transform group-hover:scale-105">
-            <span className="text-xl font-black text-primary-foreground">С</span>
+            <span className="text-xl font-black text-primary-foreground">П</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            Склад<span className="text-primary">Твой</span>
-          </span>
+          <span className="text-xl font-bold tracking-tight">ПЕЛИКАН</span>
         </Link>
 
         {/* Navigation */}

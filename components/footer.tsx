@@ -43,14 +43,12 @@ export function Footer() {
           <div>
             <Link href="/" className="mb-6 flex items-center gap-3 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary transition-transform group-hover:scale-105">
-                <span className="text-2xl font-black text-primary-foreground">С</span>
+                <span className="text-2xl font-black text-primary-foreground">П</span>
               </div>
-              <span className="text-2xl font-bold tracking-tight">
-                Склад<span className="text-primary">Твой</span>
-              </span>
+              <span className="text-2xl font-bold tracking-tight">ПЕЛИКАН</span>
             </Link>
             <p className="text-sm leading-relaxed text-accent-foreground/60">
-              Современный склад для хранения вещей в Москве. Работаем с 2020 года.
+              Современный склад для хранения вещей в Санкт-Петербурге. Работаем с 2020 года.
             </p>
           </div>
 
@@ -102,7 +100,7 @@ export function Footer() {
                 </a>
               </li>
               <li className="text-accent-foreground/70">
-                Москва, ул. Складская, 1
+                СПб, Петроградская сторона
               </li>
             </ul>
           </div>
@@ -111,7 +109,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-6 border-t border-border/30 pt-8 md:flex-row">
           <p className="text-sm text-accent-foreground/40">
-            © {new Date().getFullYear()} СкладТвой. Все права защищены.
+            © {new Date().getFullYear()} ПЕЛИКАН. Все права защищены.
           </p>
           
           <div className="flex items-center gap-6">

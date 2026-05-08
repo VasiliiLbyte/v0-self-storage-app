@@ -12,7 +12,7 @@ export function Hero() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const }}
           className="text-[25vw] font-black text-foreground/[0.03] dark:text-foreground/[0.04] leading-none tracking-tighter whitespace-nowrap"
         >
           СКЛАД
@@ -38,7 +38,9 @@ export function Hero() {
             </span>
             <span className="text-sm font-medium">24/7 доступ</span>
           </div>
-          <span className="hidden text-sm text-muted-foreground md:inline">Москва, ЗАО</span>
+          <span className="hidden text-sm text-muted-foreground md:inline">
+            Петроградская сторона, СПб
+          </span>
         </motion.div>
 
         {/* Main headline */}
@@ -46,7 +48,7 @@ export function Hero() {
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] as const }}
             className="text-5xl font-black tracking-tight md:text-7xl lg:text-[6rem] xl:text-[7rem]"
           >
             <span className="block text-foreground">Храним вещи.</span>
@@ -105,7 +107,7 @@ export function Hero() {
               <div className="mt-2 text-muted-foreground">от размера</div>
             </div>
             <div className="group rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg">
-              <div className="text-4xl font-black tracking-tight md:text-5xl">1 990<span className="text-2xl">₽</span></div>
+              <div className="text-4xl font-black tracking-tight md:text-5xl">1 490<span className="text-2xl">₽</span></div>
               <div className="mt-2 text-muted-foreground">от / мес</div>
             </div>
           </motion.div>

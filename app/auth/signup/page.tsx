@@ -55,9 +55,9 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <Link href="/" className="mb-4 inline-flex items-center gap-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-xl font-black text-primary-foreground">С</span>
+              <span className="text-xl font-black text-primary-foreground">П</span>
             </div>
-            <span className="text-2xl font-bold tracking-tight">СкладТвой</span>
+            <span className="text-2xl font-bold tracking-tight">ПЕЛИКАН</span>
           </Link>
           <h1 className="text-headline mt-6 text-2xl">Создать аккаунт</h1>
           <p className="mt-2 text-sm text-muted-foreground">

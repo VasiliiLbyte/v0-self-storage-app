@@ -52,6 +52,34 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  const pathname = request.nextUrl.pathname
+  if (pathname.startsWith('/admin')) {
+    const home = request.nextUrl.clone()
+    home.pathname = '/'
+
+    const redirectHome = () => {
+      const res = NextResponse.redirect(home)
+      for (const c of supabaseResponse.cookies.getAll()) {
+        res.cookies.set(c.name, c.value, c)
+      }
+      return res
+    }
+
+    if (!user) {
+      return redirectHome()
+    }
+
+    const { data: adminProfile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (adminProfile?.role !== 'admin') {
+      return redirectHome()
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -14,9 +14,12 @@ import type { User } from "@supabase/supabase-js"
 type Box = {
   id: string
   name: string
-  size_sqm: number
-  price_monthly: number
+  type: string
+  number: number
+  size_m2: number
+  price_month: number
   description: string
+  in_maintenance?: boolean
 }
 
 const STEPS = [
@@ -27,7 +30,6 @@ const STEPS = [
 ]
 
 function BookingContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   
   const [step, setStep] = useState(1)
@@ -49,7 +51,12 @@ function BookingContent() {
     const supabase = createClient()
     
     // Fetch boxes
-    supabase.from("boxes").select("*").order("size_sqm").then(({ data }) => {
+    supabase
+      .from("boxes")
+      .select("*")
+      .eq("in_maintenance", false)
+      .order("number", { ascending: true })
+      .then(({ data }) => {
       if (data) {
         setBoxes(data)
         const boxId = searchParams.get("box")
@@ -86,8 +93,9 @@ function BookingContent() {
     setStartDate(tomorrow.toISOString().split("T")[0])
   }, [searchParams])
 
-  const totalPrice = selectedBox ? selectedBox.price_monthly * months : 0
+  const totalPrice = selectedBox ? selectedBox.price_month * months : 0
   const discount = months >= 6 ? 0.1 : months >= 3 ? 0.05 : 0
+  const discountPercent = months >= 6 ? 10 : months >= 3 ? 5 : 0
   const finalPrice = Math.round(totalPrice * (1 - discount))
 
   const handleSubmit = async () => {
@@ -95,6 +103,8 @@ function BookingContent() {
     
     setSubmitting(true)
     const supabase = createClient()
+
+    let bookingUserId = user?.id ?? null
 
     // If not logged in, create account first
     if (!user) {
@@ -117,31 +127,69 @@ function BookingContent() {
         return
       }
 
-      // For demo, we'll proceed with the booking even without confirmed email
-      // In production, you'd want to handle email confirmation
+      bookingUserId =
+        authData.user?.id ??
+        authData.session?.user?.id ??
+        (await supabase.auth.getSession()).data.session?.user?.id ??
+        null
+
+      if (!bookingUserId) {
+        alert("Не удалось получить пользователя после регистрации. Подтвердите email или войдите вручную.")
+        setSubmitting(false)
+        return
+      }
     }
 
     // Create booking
     const endDate = new Date(startDate)
     endDate.setMonth(endDate.getMonth() + months)
 
-    const { error: bookingError } = await supabase.from("bookings").insert({
-      user_id: user?.id,
-      box_id: selectedBox.id,
-      start_date: startDate,
-      end_date: endDate.toISOString().split("T")[0],
-      total_price: finalPrice,
-      status: "pending",
-    })
+    const basePrice = Math.round(totalPrice)
+    const accessCode = String(Math.floor(100000 + Math.random() * 900000))
 
-    if (bookingError) {
-      alert("Ошибка при создании бронирования: " + bookingError.message)
+    const { data: createdBooking, error: bookingError } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: bookingUserId,
+        box_id: selectedBox.id,
+        start_date: startDate,
+        end_date: endDate.toISOString().split("T")[0],
+        months,
+        base_price: basePrice,
+        discount_percent: discountPercent,
+        final_price: finalPrice,
+        access_code: accessCode,
+        status: "pending",
+      })
+      .select("id")
+      .single()
+
+    if (bookingError || !createdBooking) {
+      alert("Ошибка при создании бронирования: " + (bookingError?.message ?? ""))
       setSubmitting(false)
       return
     }
 
-    // Redirect to success page or dashboard
-    router.push("/booking/success")
+    const description = `Аренда ${selectedBox.name} (${months} мес.)`
+    const payRes = await fetch("/api/payments/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        booking_id: createdBooking.id,
+        amount: finalPrice,
+        description,
+      }),
+    })
+
+    const payJson = (await payRes.json()) as { confirmation_url?: string; error?: string }
+    if (!payRes.ok || !payJson.confirmation_url) {
+      alert(payJson.error ?? "Не удалось создать платёж. Попробуйте позже или обратитесь в поддержку.")
+      setSubmitting(false)
+      return
+    }
+
+    window.location.href = payJson.confirmation_url
   }
 
   const canProceed = () => {
@@ -234,12 +282,15 @@ function BookingContent() {
                         <div className="mb-3 flex items-center justify-between">
                           <span className="text-headline text-2xl">{box.name}</span>
                           <span className="rounded-full bg-secondary px-3 py-1 text-sm">
-                            {box.size_sqm} м²
+                            {box.size_m2} м²
                           </span>
                         </div>
+                        <p className="mb-1 text-xs text-muted-foreground">
+                          {box.type} · №{box.number}
+                        </p>
                         <p className="mb-3 text-sm text-muted-foreground">{box.description}</p>
                         <div className="text-lg font-semibold">
-                          {box.price_monthly.toLocaleString("ru-RU")} ₽
+                          {box.price_month.toLocaleString("ru-RU")} ₽
                           <span className="text-sm font-normal text-muted-foreground"> / мес</span>
                         </div>
                       </Card>
@@ -344,7 +395,7 @@ function BookingContent() {
                   <Card className="divide-y divide-border">
                     <div className="flex items-center justify-between p-4">
                       <span className="text-muted-foreground">Бокс</span>
-                      <span className="font-medium">{selectedBox?.name} ({selectedBox?.size_sqm} м²)</span>
+                      <span className="font-medium">{selectedBox?.name} ({selectedBox?.size_m2} м²)</span>
                     </div>
                     <div className="flex items-center justify-between p-4">
                       <span className="text-muted-foreground">Срок аренды</span>
@@ -367,8 +418,8 @@ function BookingContent() {
                   </Card>
 
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Нажимая &quot;Забронировать&quot;, вы соглашаетесь с условиями аренды. 
-                    Оплата производится при заезде на склад.
+                    Нажимая &quot;Перейти к оплате&quot;, вы соглашаетесь с условиями аренды и переходите к
+                    безопасной оплате через ЮKassa.
                   </p>
                 </div>
               )}
@@ -386,9 +437,9 @@ function BookingContent() {
                         <span className="text-lg font-bold">{selectedBox.name}</span>
                       </div>
                       <div>
-                        <div className="font-medium">{selectedBox.size_sqm} м²</div>
+                        <div className="font-medium">{selectedBox.size_m2} м²</div>
                         <div className="text-sm text-muted-foreground">
-                          {selectedBox.price_monthly.toLocaleString("ru-RU")} ₽/мес
+                          {selectedBox.price_month.toLocaleString("ru-RU")} ₽/мес
                         </div>
                       </div>
                     </div>
@@ -441,7 +492,7 @@ function BookingContent() {
                       disabled={submitting}
                       className="flex-1"
                     >
-                      {submitting ? "Оформление..." : "Забронировать"}
+                      {submitting ? "Переход к оплате..." : "Перейти к оплате"}
                     </Button>
                   )}
                 </div>

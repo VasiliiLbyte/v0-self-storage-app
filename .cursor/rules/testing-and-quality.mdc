@@ -1,0 +1,24 @@
+---
+description: Testing and quality baseline for this repository
+alwaysApply: true
+---
+
+# Testing and Quality Baseline
+
+## Quality gates
+
+- At minimum, run `lint` for all code changes.
+- For risky changes (auth, booking flow, data writes), also run build/type checks.
+- Do not mark task complete if checks fail due to new issues.
+
+## Test expectations
+
+- For new business logic, add automated tests when test infra exists.
+- If tests are not yet set up, include a concrete manual verification checklist in PR/summary.
+- Prioritize coverage for critical flows: login/signup, booking creation, dashboard data loading.
+
+## Security and config hygiene
+
+- Never hardcode secrets or Supabase keys in source files.
+- Keep env usage documented and consistent with runtime needs.
+- Validate and sanitize user-provided input before DB writes.
