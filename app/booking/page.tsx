@@ -7,8 +7,24 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
+
+/** Семантика как при insert в bookings: конец периода = start + N календарных месяцев. */
+function computeRentalEndDateIso(startDate: string, months: number): string {
+  const end = new Date(startDate)
+  end.setMonth(end.getMonth() + months)
+  return end.toISOString().split("T")[0]
+}
+
+function formatDateRuLong(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
 
 type Box = {
   id: string
@@ -142,6 +158,8 @@ function BookingContent() {
   const discount = months >= 6 ? 0.1 : months >= 3 ? 0.05 : 0
   const discountPercent = months >= 6 ? 10 : months >= 3 ? 5 : 0
   const finalPrice = Math.round(totalPrice * (1 - discount))
+  const rentalEndIso =
+    startDate && months > 0 ? computeRentalEndDateIso(startDate, months) : null
 
   const handleSubmit = async () => {
     if (!selectedBox) return
@@ -186,8 +204,7 @@ function BookingContent() {
     }
 
     // Create booking
-    const endDate = new Date(startDate)
-    endDate.setMonth(endDate.getMonth() + months)
+    const endDateIso = computeRentalEndDateIso(startDate, months)
 
     const basePrice = Math.round(totalPrice)
     const accessCode = String(Math.floor(100000 + Math.random() * 900000))
@@ -198,7 +215,7 @@ function BookingContent() {
         user_id: bookingUserId,
         box_id: selectedBox.id,
         start_date: startDate,
-        end_date: endDate.toISOString().split("T")[0],
+        end_date: endDateIso,
         months,
         base_price: basePrice,
         discount_percent: discountPercent,
@@ -472,6 +489,14 @@ function BookingContent() {
                       min={new Date().toISOString().split("T")[0]}
                       className="max-w-xs"
                     />
+                    {rentalEndIso ? (
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        Аренда до{" "}
+                        <span className="font-medium text-foreground">
+                          {formatDateRuLong(rentalEndIso)}
+                        </span>
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -542,14 +567,14 @@ function BookingContent() {
                     </div>
                     <div className="flex items-center justify-between p-4">
                       <span className="text-muted-foreground">Дата начала</span>
-                      <span className="font-medium">
-                        {new Date(startDate).toLocaleDateString("ru-RU", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
+                      <span className="font-medium">{formatDateRuLong(startDate)}</span>
                     </div>
+                    {rentalEndIso ? (
+                      <div className="flex items-center justify-between p-4">
+                        <span className="text-muted-foreground">Дата окончания</span>
+                        <span className="font-medium">{formatDateRuLong(rentalEndIso)}</span>
+                      </div>
+                    ) : null}
                     <div className="flex items-center justify-between p-4">
                       <span className="text-muted-foreground">Контакт</span>
                       <span className="font-medium">{formData.name}</span>
@@ -571,17 +596,32 @@ function BookingContent() {
                 
                 {selectedBox ? (
                   <>
-                    <div className="mb-4 flex items-center gap-3 rounded-lg bg-secondary p-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <span className="text-lg font-bold">{selectedBox.name}</span>
+                    <div className="mb-4 flex gap-3 rounded-xl border border-border bg-card/80 p-4">
+                      <div
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
+                        aria-hidden
+                      >
+                        <Package className="h-5 w-5" strokeWidth={2} />
                       </div>
-                      <div>
-                        <div className="font-medium">{selectedBox.size_m2} м²</div>
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="font-semibold leading-snug">{selectedBox.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {selectedBox.type} · №{selectedBox.number} · {selectedBox.size_m2} м²
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {selectedBox.price_month.toLocaleString("ru-RU")} ₽/мес
                         </div>
                       </div>
                     </div>
+
+                    {rentalEndIso && startDate ? (
+                      <p className="mb-4 text-sm text-muted-foreground">
+                        Период:{" "}
+                        <span className="text-foreground">
+                          {formatDateRuLong(startDate)} — {formatDateRuLong(rentalEndIso)}
+                        </span>
+                      </p>
+                    ) : null}
 
                     <div className="space-y-2 border-t border-border pt-4">
                       <div className="flex justify-between text-sm">

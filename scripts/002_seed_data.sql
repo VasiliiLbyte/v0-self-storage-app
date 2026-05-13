@@ -5,7 +5,7 @@ DELETE FROM payments;
 DELETE FROM bookings;
 DELETE FROM boxes;
 
--- 53 ячейки: XS×16, S×19, M×12, L×6; номера 1–53; floor/zone — условная сетка по плану
+-- 53 ячейки по экспликации плана (тип и м² на номер); цена — формула от типа и площади
 INSERT INTO boxes (
   name, type, number, floor, zone,
   size_m2, width_m, depth_m, height_m,
@@ -15,53 +15,79 @@ SELECT
   format('Ячейка %s · %s', n, typ),
   typ,
   n::integer,
-  fl,
-  zn,
-  round(sz::numeric, 2)::decimal(5, 2),
-  round((sz::numeric / 1.20)::numeric, 2)::decimal(4, 2),
+  1::smallint,
+  'Экспликация'::text,
+  round(sz_m2::numeric, 2)::decimal(5, 2),
+  round((sz_m2::numeric / 1.20)::numeric, 2)::decimal(4, 2),
   1.20::decimal(4, 2),
   2.40::decimal(4, 2),
-  round(pr::numeric, 0)::integer,
-  format('Зона %s, этаж %s.', zn, fl),
+  ROUND(
+    CASE typ
+      WHEN 'XS' THEN 1490 + (sz_m2 - 1.0) * 600
+      WHEN 'S' THEN 2390 + (sz_m2 - 1.8) * 1000
+      WHEN 'M' THEN 3790 + (sz_m2 - 3.0) * 800
+      WHEN 'L' THEN 5490 + (sz_m2 - 4.0) * 900
+    END
+  )::integer,
+  format('По экспликации плана: %s м².', round(sz_m2::numeric, 2)),
   ARRAY['Климат-контроль', 'Доступ 24/7']::text[],
   true
 FROM (
-  SELECT
-    gs AS n,
-    CASE
-      WHEN gs <= 16 THEN 'XS'
-      WHEN gs <= 35 THEN 'S'
-      WHEN gs <= 47 THEN 'M'
-      ELSE 'L'
-    END AS typ,
-    CASE
-      WHEN gs <= 8 THEN 'XS_A'
-      WHEN gs <= 16 THEN 'XS_B'
-      WHEN gs <= 26 THEN 'S_A'
-      WHEN gs <= 35 THEN 'S_B'
-      WHEN gs <= 41 THEN 'M_A'
-      WHEN gs <= 47 THEN 'M_B'
-      ELSE 'L_A'
-    END AS zn,
-    CASE
-      WHEN gs <= 26 THEN 1::smallint
-      WHEN gs <= 41 THEN 2::smallint
-      ELSE 3::smallint
-    END AS fl,
-    CASE
-      WHEN gs <= 16 THEN (1.0::numeric + 0.3 * (gs - 1) / 15.0)
-      WHEN gs <= 35 THEN (1.8::numeric + 0.4 * (gs - 17) / 18.0)
-      WHEN gs <= 47 THEN (3.0::numeric + 0.5 * (gs - 36) / 11.0)
-      ELSE (4.0::numeric + 1.0 * (gs - 48) / 5.0)
-    END AS sz,
-    CASE
-      WHEN gs <= 16 THEN (1490::numeric + 400 * (gs - 1) / 15.0)
-      WHEN gs <= 35 THEN (2490::numeric + 500 * (gs - 17) / 18.0)
-      WHEN gs <= 47 THEN (3990::numeric + 1000 * (gs - 36) / 11.0)
-      ELSE (5990::numeric + 2000 * (gs - 48) / 5.0)
-    END AS pr
-  FROM generate_series(1, 53) AS gs
-) t;
+  VALUES
+    (1, 'XS', 1.0::numeric),
+    (2, 'XS', 1.0::numeric),
+    (3, 'S', 1.9::numeric),
+    (4, 'XS', 1.3::numeric),
+    (5, 'XS', 1.0::numeric),
+    (6, 'S', 1.8::numeric),
+    (7, 'S', 2.2::numeric),
+    (8, 'XS', 1.2::numeric),
+    (9, 'S', 2.1::numeric),
+    (10, 'M', 3.4::numeric),
+    (11, 'M', 3.0::numeric),
+    (12, 'L', 5.0::numeric),
+    (13, 'S', 2.2::numeric),
+    (14, 'M', 3.5::numeric),
+    (15, 'M', 3.5::numeric),
+    (16, 'L', 5.0::numeric),
+    (17, 'S', 2.0::numeric),
+    (18, 'S', 2.0::numeric),
+    (19, 'M', 3.3::numeric),
+    (20, 'M', 3.3::numeric),
+    (21, 'M', 3.3::numeric),
+    (22, 'L', 4.5::numeric),
+    (23, 'L', 4.0::numeric),
+    (24, 'XS', 1.2::numeric),
+    (25, 'XS', 1.1::numeric),
+    (26, 'XS', 1.1::numeric),
+    (27, 'XS', 1.1::numeric),
+    (28, 'XS', 1.1::numeric),
+    (29, 'XS', 1.1::numeric),
+    (30, 'XS', 1.1::numeric),
+    (31, 'XS', 1.1::numeric),
+    (32, 'XS', 1.1::numeric),
+    (33, 'S', 2.1::numeric),
+    (34, 'S', 2.1::numeric),
+    (35, 'M', 3.4::numeric),
+    (36, 'S', 2.2::numeric),
+    (37, 'S', 2.2::numeric),
+    (38, 'S', 2.2::numeric),
+    (39, 'S', 2.2::numeric),
+    (40, 'S', 2.2::numeric),
+    (41, 'XS', 1.2::numeric),
+    (42, 'S', 2.2::numeric),
+    (43, 'L', 4.5::numeric),
+    (44, 'M', 3.0::numeric),
+    (45, 'M', 3.0::numeric),
+    (46, 'M', 3.1::numeric),
+    (47, 'M', 3.5::numeric),
+    (48, 'S', 2.2::numeric),
+    (49, 'XS', 1.2::numeric),
+    (50, 'L', 4.5::numeric),
+    (51, 'S', 2.0::numeric),
+    (52, 'S', 2.0::numeric),
+    (53, 'S', 2.2::numeric)
+) AS t (n, typ, sz_m2);
 
 -- Отзывы
 INSERT INTO reviews (author_name, author_role, content, rating) VALUES

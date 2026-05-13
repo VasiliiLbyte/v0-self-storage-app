@@ -109,6 +109,32 @@ export function occupancyByType(boxes: BoxRow[], bookings: BookingOverlapRow[], 
   return out
 }
 
+/**
+ * Занятые ячейки по типу так же, как карточка «Ячейки → занято»:
+ * любая бронь со статусом active или pending (включая будущий start_date).
+ */
+export function occupancyByTypeReserved(boxes: BoxRow[], bookings: BookingOverlapRow[]) {
+  const types = ["XS", "S", "M", "L"] as const
+  const out: Record<string, { occupied: number; total: number; pct: number }> = {}
+  for (const t of types) {
+    const ofType = boxes.filter((b) => b.type === t && !b.in_maintenance)
+    const total = ofType.length || 1
+    let occupied = 0
+    for (const box of ofType) {
+      const reserved = bookings.some(
+        (b) => b.box_id === box.id && (b.status === "active" || b.status === "pending"),
+      )
+      if (reserved) occupied += 1
+    }
+    out[t] = {
+      occupied,
+      total: ofType.length,
+      pct: ofType.length === 0 ? 0 : Math.round((occupied / total) * 1000) / 10,
+    }
+  }
+  return out
+}
+
 export function occupancySeriesLastMonths(
   boxes: BoxRow[],
   bookings: BookingOverlapRow[],

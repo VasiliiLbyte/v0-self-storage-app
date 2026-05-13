@@ -5,7 +5,7 @@ import { AdminDashboardCharts } from "@/components/admin-dashboard-charts"
 import { cn } from "@/lib/utils"
 import {
   revenueMonthOverMonth,
-  occupancyByType,
+  occupancyByTypeReserved,
   occupancySeriesLastMonths,
   revenueByMonthSeries,
   type BookingOverlapRow,
@@ -22,6 +22,7 @@ export default async function AdminDashboardPage() {
     { count: activeRentalsCount },
     { data: occupyingRows },
     { data: overlapBookings },
+    { data: reservedBookings },
     { data: paymentsRaw },
     { count: newClientsCount },
     { data: overdueRows },
@@ -42,6 +43,10 @@ export default async function AdminDashboardPage() {
         .lte("start_date", maxLast)
         .gte("end_date", minLast)
     })(),
+    supabase
+      .from("bookings")
+      .select("box_id, start_date, end_date, status")
+      .in("status", ["active", "pending"]),
     supabase.from("payments").select("amount, status, created_at, user_id"),
     (() => {
       const { startIso, endIso } = currentUtcMonthRange()
@@ -66,7 +71,8 @@ export default async function AdminDashboardPage() {
     revenueMonthOverMonth(payments)
   const occupancySeries = occupancySeriesLastMonths(boxes, overlapRows, 6)
   const revenueSeries = revenueByMonthSeries(payments, 6)
-  const byType = occupancyByType(boxes, overlapRows, todayDateStringMoscow())
+  const reservedRows = (reservedBookings ?? []) as BookingOverlapRow[]
+  const byType = occupancyByTypeReserved(boxes, reservedRows)
 
   const occupyingIds = new Set(
     (occupyingRows ?? []).map((r: { box_id: string }) => r.box_id),
@@ -164,7 +170,7 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Occupancy по типу (сегодня)
+              Занято по типу
             </CardTitle>
           </CardHeader>
           <CardContent>
