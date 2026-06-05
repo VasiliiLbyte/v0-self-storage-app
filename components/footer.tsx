@@ -40,7 +40,7 @@ export function Footer() {
         </motion.div>
 
         {/* Links grid */}
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 mb-16">
           <div>
             <Link href="/" className="mb-6 flex items-center gap-3 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary transition-transform group-hover:scale-105">
@@ -66,6 +66,26 @@ export function Footer() {
                 { href: "/booking", label: "Аренда бокса" },
                 { href: "/#calculator", label: "Калькулятор" },
                 { href: "/#benefits", label: "Преимущества" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Документы</h4>
+            <ul className="space-y-3 text-sm">
+              {[
+                { href: "/legal/offer", label: "Публичная оферта" },
+                { href: "/legal/rules", label: "Правила пользования боксами" },
+                { href: "/legal/prohibited", label: "Перечень запрещённых вещей" },
+                { href: "/legal/privacy", label: "Политика конфиденциальности" },
+                { href: "/legal/terms", label: "Пользовательское соглашение" },
+                { href: "/legal/contract", label: "Типовой договор" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">

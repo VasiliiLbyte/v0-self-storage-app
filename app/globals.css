@@ -137,3 +137,60 @@
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
+
+.legal-content h1,
+.legal-content h2,
+.legal-content h3 {
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-content h1 {
+  font-size: 1.5rem;
+}
+
+.legal-content h2 {
+  font-size: 1.25rem;
+}
+
+.legal-content h3 {
+  font-size: 1.125rem;
+}
+
+.legal-content p {
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.legal-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-content li {
+  margin-bottom: 0.25rem;
+}
+
+.legal-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.legal-content th,
+.legal-content td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.legal-content th:first-child,
+.legal-content td:first-child {
+  font-weight: 600;
+}
+
+.legal-content a {
+  color: var(--primary);
+}
