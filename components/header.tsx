@@ -16,9 +16,12 @@ export function Header() {
 
   useEffect(() => {
     const supabase = createClient()
-    
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
+
+    // getSession() reads the session locally without forcing a network token
+    // refresh, so it doesn't race the middleware's refresh (single-use refresh
+    // tokens would otherwise invalidate each other and log the user out).
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
       setLoading(false)
     })
 
