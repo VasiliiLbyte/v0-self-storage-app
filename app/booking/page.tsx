@@ -14,7 +14,7 @@ import { Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { CROSSBORDER_TRANSFER } from "@/lib/contract/contract-content"
 import { cn } from "@/lib/utils"
-import type { User } from "@supabase/supabase-js"
+import type { Session, User } from "@supabase/supabase-js"
 
 /** Семантика как при insert в bookings: конец периода = start + N календарных месяцев. */
 function computeRentalEndDateIso(startDate: string, months: number): string {
@@ -111,11 +111,11 @@ function BookingContent() {
       .select("*")
       .eq("in_maintenance", false)
       .order("number", { ascending: true })
-      .then(({ data }) => {
+      .then(({ data }: { data: Box[] | null }) => {
       if (data) {
         setBoxes(data)
         const boxId = searchParams.get("box")
-        const preselected = data.find((b) => b.id === boxId)
+        const preselected = data.find((b: Box) => b.id === boxId)
         if (preselected) {
           setSelectedBox(preselected)
           if (isSizeType(preselected.type)) {
@@ -135,7 +135,7 @@ function BookingContent() {
     })
 
     // Auth + profile phone (wait before hiding loader)
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }: { data: { session: Session | null } }) => {
       const user = session?.user ?? null
       setUser(user)
       if (user) {

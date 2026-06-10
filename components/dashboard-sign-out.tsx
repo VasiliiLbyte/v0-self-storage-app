@@ -1,7 +1,6 @@
 "use client"
 
 import type { ComponentProps } from "react"
-import Link from "next/link"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -19,23 +18,27 @@ export function DashboardSignOut({
 }) {
   if (appearance === "sidebar") {
     return (
-      <Button
-        asChild
-        type="button"
-        variant="ghost"
-        className={cn("gap-2 text-muted-foreground hover:text-foreground", className)}
-      >
-        <Link href="/auth/logout">
+      <form action="/auth/logout" method="post">
+        <Button
+          type="submit"
+          variant="ghost"
+          className={cn(
+            "gap-2 text-muted-foreground hover:text-foreground w-full justify-start",
+            className,
+          )}
+        >
           <LogOut className="h-4 w-4 shrink-0" aria-hidden />
           Выйти
-        </Link>
-      </Button>
+        </Button>
+      </form>
     )
   }
 
   return (
-    <Button asChild type="button" variant={variant} className={className}>
-      <Link href="/auth/logout">Выйти</Link>
-    </Button>
+    <form action="/auth/logout" method="post">
+      <Button type="submit" variant={variant} className={className}>
+        Выйти
+      </Button>
+    </form>
   )
 }
