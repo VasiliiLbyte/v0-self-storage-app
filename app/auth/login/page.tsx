@@ -37,6 +37,7 @@ function LoginForm() {
     const next = searchParams.get("next")
     const safe =
       next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"
+    router.refresh()
     router.push(safe)
   }
 
