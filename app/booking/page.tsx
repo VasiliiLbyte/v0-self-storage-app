@@ -244,6 +244,18 @@ function BookingContent() {
       return
     }
 
+    const { error: profileUpdateError } = await supabase
+      .from("profiles")
+      .update({
+        full_name: formData.name.trim(),
+        phone: formData.phone.trim(),
+      })
+      .eq("id", bookingUserId)
+
+    if (profileUpdateError) {
+      console.error("profile update before sign:", profileUpdateError)
+    }
+
     const signRes = await fetch("/api/bookings/sign", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -314,7 +326,11 @@ function BookingContent() {
       case 2:
         return months > 0 && !!startDate
       case 3:
-        return !!(formData.name && formData.email)
+        return !!(
+          formData.name.trim() &&
+          formData.email &&
+          formData.phone.trim()
+        )
       default:
         return true
     }
@@ -342,7 +358,7 @@ function BookingContent() {
   return (
     <>
       <Header />
-      <main className="min-h-screen py-8 md:py-12">
+      <main className="min-h-screen pt-28 pb-8 md:pt-32 md:pb-12">
         <div className="mx-auto max-w-4xl px-4">
           {/* Progress */}
           <div className="mb-8 md:mb-12">
@@ -540,11 +556,11 @@ function BookingContent() {
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="mb-2 block text-sm font-medium">Имя</label>
+                      <label className="mb-2 block text-sm font-medium">ФИО</label>
                       <Input
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Иван Иванов"
+                        placeholder="Фамилия Имя Отчество"
                       />
                     </div>
                     <div>
@@ -764,14 +780,14 @@ function BookingContent() {
                 <div
                   className={cn(
                     "mt-6 flex min-w-0 gap-2",
-                    step === 4 && "flex-col sm:flex-row",
+                    step === 4 && "flex-col",
                   )}
                 >
                   {step > 1 && (
                     <Button
                       variant="outline"
                       onClick={goBackStep}
-                      className="min-w-0 flex-1 !shrink"
+                      className={step === 4 ? "w-full" : "min-w-0 flex-1 !shrink"}
                     >
                       Назад
                     </Button>
@@ -788,7 +804,7 @@ function BookingContent() {
                     <Button
                       onClick={handleSubmit}
                       disabled={submitting || !requiredConsentsMet}
-                      className="min-w-0 flex-1 !shrink"
+                      className="w-full"
                     >
                       {submitting ? "Оплата…" : "Перейти к оплате"}
                     </Button>
