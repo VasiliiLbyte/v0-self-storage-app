@@ -8,13 +8,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Run session refresh only on actual page navigations.
-     * Excluded to avoid concurrent token refreshes that rotate the
-     * Supabase refresh token and randomly log users out:
-     * - api/  (route handlers refresh + persist cookies themselves)
-     * - auth/ (public pages; /auth/callback sets its own cookies)
-     * - _next/static, _next/image, favicon, and static asset files
+     * Refresh the session only on protected app routes (document navigations).
+     * Public pages skip middleware entirely to avoid unnecessary refresh churn.
      */
-    '/((?!api/|auth/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|txt|woff|woff2|ttf)$).*)',
+    '/dashboard/:path*',
+    '/admin/:path*',
+    '/booking/:path*',
   ],
 }
