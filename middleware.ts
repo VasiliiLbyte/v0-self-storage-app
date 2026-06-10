@@ -8,13 +8,13 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
+     * Run session refresh only on actual page navigations.
+     * Excluded to avoid concurrent token refreshes that rotate the
+     * Supabase refresh token and randomly log users out:
+     * - api/  (route handlers refresh + persist cookies themselves)
+     * - auth/ (public pages; /auth/callback sets its own cookies)
+     * - _next/static, _next/image, favicon, and static asset files
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/|auth/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|txt|woff|woff2|ttf)$).*)',
   ],
 }

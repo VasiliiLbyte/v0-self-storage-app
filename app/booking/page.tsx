@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { CROSSBORDER_TRANSFER } from "@/lib/contract/contract-content"
+import { cn } from "@/lib/utils"
 import type { User } from "@supabase/supabase-js"
 
 /** Семантика как при insert в bookings: конец периода = start + N календарных месяцев. */
@@ -615,24 +616,52 @@ function BookingContent() {
                         checked={consentDocs}
                         onCheckedChange={(v) => setConsentDocs(v === true)}
                       />
-                      <Label htmlFor="consent-docs" className="cursor-pointer font-normal leading-snug">
-                        Я ознакомлен и согласен с{" "}
-                        <Link href="/legal/contract" target="_blank" className="text-primary hover:underline">
-                          Договором
-                        </Link>
-                        ,{" "}
-                        <Link href="/legal/offer" target="_blank" className="text-primary hover:underline">
-                          Публичной офертой
-                        </Link>
-                        ,{" "}
-                        <Link href="/legal/rules" target="_blank" className="text-primary hover:underline">
-                          Правилами
-                        </Link>{" "}
-                        и{" "}
-                        <Link href="/legal/privacy" target="_blank" className="text-primary hover:underline">
-                          Политикой обработки персональных данных
-                        </Link>
-                      </Label>
+                      <div className="min-w-0 flex-1 space-y-2 text-sm leading-relaxed">
+                        <label
+                          htmlFor="consent-docs"
+                          className="block cursor-pointer font-normal"
+                        >
+                          Я ознакомлен и согласен с документами:
+                        </label>
+                        <ul className="list-inside list-disc space-y-1 pl-0.5 text-muted-foreground">
+                          <li>
+                            <Link
+                              href="/legal/contract"
+                              target="_blank"
+                              className="text-primary hover:underline"
+                            >
+                              Договор аренды
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/legal/offer"
+                              target="_blank"
+                              className="text-primary hover:underline"
+                            >
+                              Публичная оферта
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/legal/rules"
+                              target="_blank"
+                              className="text-primary hover:underline"
+                            >
+                              Правила пользования боксами
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/legal/privacy"
+                              target="_blank"
+                              className="text-primary hover:underline"
+                            >
+                              Политика обработки персональных данных
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
 
                     {CROSSBORDER_TRANSFER ? (
@@ -642,7 +671,10 @@ function BookingContent() {
                           checked={consentCrossborder}
                           onCheckedChange={(v) => setConsentCrossborder(v === true)}
                         />
-                        <Label htmlFor="consent-crossborder" className="cursor-pointer font-normal leading-snug">
+                        <Label
+                          htmlFor="consent-crossborder"
+                          className="block cursor-pointer font-normal leading-relaxed"
+                        >
                           Согласен на трансграничную передачу персональных данных (ст. 12 152-ФЗ)
                         </Label>
                       </div>
@@ -654,7 +686,10 @@ function BookingContent() {
                         checked={consentMarketing}
                         onCheckedChange={(v) => setConsentMarketing(v === true)}
                       />
-                      <Label htmlFor="consent-marketing" className="cursor-pointer font-normal leading-snug">
+                      <Label
+                        htmlFor="consent-marketing"
+                        className="block cursor-pointer font-normal leading-relaxed"
+                      >
                         Согласен получать рекламные рассылки
                       </Label>
                     </div>
@@ -725,12 +760,17 @@ function BookingContent() {
                   <p className="text-sm text-muted-foreground">Выберите бокс для расчёта</p>
                 )}
 
-                <div className="mt-6 flex gap-2">
+                <div
+                  className={cn(
+                    "mt-6 flex min-w-0 gap-2",
+                    step === 4 && "flex-col sm:flex-row",
+                  )}
+                >
                   {step > 1 && (
                     <Button
                       variant="outline"
                       onClick={goBackStep}
-                      className="flex-1"
+                      className="min-w-0 flex-1 !shrink"
                     >
                       Назад
                     </Button>
@@ -739,7 +779,7 @@ function BookingContent() {
                     <Button
                       onClick={goNext}
                       disabled={!canProceed()}
-                      className="flex-1"
+                      className="min-w-0 flex-1 !shrink"
                     >
                       Далее
                     </Button>
@@ -747,9 +787,9 @@ function BookingContent() {
                     <Button
                       onClick={handleSubmit}
                       disabled={submitting || !requiredConsentsMet}
-                      className="flex-1"
+                      className="min-w-0 flex-1 !shrink"
                     >
-                      {submitting ? "Переход к оплате..." : "Перейти к оплате"}
+                      {submitting ? "Оплата…" : "Перейти к оплате"}
                     </Button>
                   )}
                 </div>

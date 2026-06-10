@@ -6,6 +6,19 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Prefetch requests must not refresh the session: a refresh rotates the
+  // Supabase refresh token, and prefetches firing alongside navigation can
+  // invalidate it and log the user out.
+  const isPrefetch =
+    request.headers.get('next-router-prefetch') === '1' ||
+    request.headers.get('purpose') === 'prefetch' ||
+    request.headers.get('x-purpose') === 'prefetch' ||
+    request.headers.get('sec-purpose')?.includes('prefetch') === true
+
+  if (isPrefetch) {
+    return supabaseResponse
+  }
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
