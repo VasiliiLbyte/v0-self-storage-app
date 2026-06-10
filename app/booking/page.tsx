@@ -1,14 +1,18 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { CROSSBORDER_TRANSFER } from "@/lib/contract/contract-content"
 import type { User } from "@supabase/supabase-js"
 
 /** Семантика как при insert в bookings: конец периода = start + N календарных месяцев. */
@@ -90,6 +94,12 @@ function BookingContent() {
     phone: "",
   })
   const [phoneError, setPhoneError] = useState("")
+  const [consentDocs, setConsentDocs] = useState(false)
+  const [consentCrossborder, setConsentCrossborder] = useState(false)
+  const [consentMarketing, setConsentMarketing] = useState(false)
+
+  const requiredConsentsMet =
+    consentDocs && (!CROSSBORDER_TRANSFER || consentCrossborder)
 
   useEffect(() => {
     const supabase = createClient()
@@ -228,6 +238,23 @@ function BookingContent() {
 
     if (bookingError || !createdBooking) {
       alert("Ошибка при создании бронирования: " + (bookingError?.message ?? ""))
+      setSubmitting(false)
+      return
+    }
+
+    const signRes = await fetch("/api/bookings/sign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        booking_id: createdBooking.id,
+        consent_marketing: consentMarketing,
+        user_agent: navigator.userAgent,
+      }),
+    })
+    const signJson = (await signRes.json()) as { error?: string }
+    if (!signRes.ok) {
+      alert(signJson.error ?? "Не удалось зафиксировать подпись договора.")
       setSubmitting(false)
       return
     }
@@ -581,9 +608,60 @@ function BookingContent() {
                     </div>
                   </Card>
 
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="consent-docs"
+                        checked={consentDocs}
+                        onCheckedChange={(v) => setConsentDocs(v === true)}
+                      />
+                      <Label htmlFor="consent-docs" className="cursor-pointer font-normal leading-snug">
+                        Я ознакомлен и согласен с{" "}
+                        <Link href="/legal/contract" target="_blank" className="text-primary hover:underline">
+                          Договором
+                        </Link>
+                        ,{" "}
+                        <Link href="/legal/offer" target="_blank" className="text-primary hover:underline">
+                          Публичной офертой
+                        </Link>
+                        ,{" "}
+                        <Link href="/legal/rules" target="_blank" className="text-primary hover:underline">
+                          Правилами
+                        </Link>{" "}
+                        и{" "}
+                        <Link href="/legal/privacy" target="_blank" className="text-primary hover:underline">
+                          Политикой обработки персональных данных
+                        </Link>
+                      </Label>
+                    </div>
+
+                    {CROSSBORDER_TRANSFER ? (
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="consent-crossborder"
+                          checked={consentCrossborder}
+                          onCheckedChange={(v) => setConsentCrossborder(v === true)}
+                        />
+                        <Label htmlFor="consent-crossborder" className="cursor-pointer font-normal leading-snug">
+                          Согласен на трансграничную передачу персональных данных (ст. 12 152-ФЗ)
+                        </Label>
+                      </div>
+                    ) : null}
+
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="consent-marketing"
+                        checked={consentMarketing}
+                        onCheckedChange={(v) => setConsentMarketing(v === true)}
+                      />
+                      <Label htmlFor="consent-marketing" className="cursor-pointer font-normal leading-snug">
+                        Согласен получать рекламные рассылки
+                      </Label>
+                    </div>
+                  </div>
+
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Нажимая &quot;Перейти к оплате&quot;, вы соглашаетесь с условиями аренды и переходите к
-                    безопасной оплате через ЮKassa.
+                    После подтверждения вы перейдёте к безопасной оплате через ЮKassa.
                   </p>
                 </div>
               )}
@@ -668,7 +746,7 @@ function BookingContent() {
                   ) : (
                     <Button
                       onClick={handleSubmit}
-                      disabled={submitting}
+                      disabled={submitting || !requiredConsentsMet}
                       className="flex-1"
                     >
                       {submitting ? "Переход к оплате..." : "Перейти к оплате"}

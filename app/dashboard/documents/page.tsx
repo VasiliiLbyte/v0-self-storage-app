@@ -1,10 +1,14 @@
-import Link from "next/link"
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { oneRelation } from "@/lib/supabase-relations"
 import { FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DashboardEmptyState } from "@/components/dashboard-empty-state"
+
+export const metadata: Metadata = {
+  title: "Документы",
+}
 
 const TYPE_LABEL: Record<string, string> = {
   contract: "Договор",
@@ -35,6 +39,18 @@ export default async function DashboardDocumentsPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
+  const docsWithSignedUrls = await Promise.all(
+    (docs ?? []).map(async (d) => {
+      const { data, error } = await supabase.storage
+        .from("documents")
+        .createSignedUrl(d.url, 3600)
+      return {
+        ...d,
+        signedUrl: error || !data?.signedUrl ? null : data.signedUrl,
+      }
+    }),
+  )
+
   return (
     <div>
       <div className="mb-8">
@@ -51,7 +67,7 @@ export default async function DashboardDocumentsPage() {
         />
       ) : (
         <div className="space-y-3">
-          {docs.map((d) => {
+          {docsWithSignedUrls.map((d) => {
             const booking = oneRelation(d.bookings) as {
               boxes: { name: string; type: string; number: number } | { name: string; type: string; number: number }[] | null
             } | null
@@ -77,24 +93,22 @@ export default async function DashboardDocumentsPage() {
                     )}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" asChild>
-                  <a href={d.url} target="_blank" rel="noopener noreferrer">
+                {d.signedUrl ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={d.signedUrl} target="_blank" rel="noopener noreferrer">
+                      Скачать
+                    </a>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled>
                     Скачать
-                  </a>
-                </Button>
+                  </Button>
+                )}
               </Card>
             )
           })}
         </div>
       )}
-
-      <p className="mt-6 text-sm text-muted-foreground">
-        Нужен загрузчик для менеджеров? Добавьте файлы в бакет <strong>documents</strong> и строки в таблицу{" "}
-        <code className="text-xs">documents</code> с публичным или подписанным URL.{" "}
-        <Link href="/dashboard" className="text-primary underline">
-          На обзор
-        </Link>
-      </p>
     </div>
   )
 }

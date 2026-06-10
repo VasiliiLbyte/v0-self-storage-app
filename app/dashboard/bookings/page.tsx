@@ -1,4 +1,9 @@
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+  title: "Аренды",
+}
 import { oneRelation } from "@/lib/supabase-relations"
 import { DashboardBookingsList } from "@/components/dashboard-bookings-list"
 import type { DashboardBookingRow } from "@/components/dashboard-bookings-list"

@@ -4,6 +4,7 @@ import {
   CONTRACT_SUBTITLE,
   CONTRACT_BLOCKS,
   COMPANY_REQUISITES,
+  getContractSiteFields,
   type Block,
 } from "@/lib/contract/contract-content"
 
@@ -11,8 +12,21 @@ export const metadata: Metadata = {
   title: "Типовой договор | ПЕЛИКАН",
 }
 
-function placeholder(text: string): string {
-  return text.replace(/\{\{\w+\}\}/g, "____")
+const SITE_FIELD_KEYS = new Set([
+  "company_ogrnip",
+  "cadastral_number",
+  "premises_address",
+  "company_address",
+])
+
+function fillTemplate(text: string): string {
+  const site = getContractSiteFields()
+  return text.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
+    if (SITE_FIELD_KEYS.has(key)) {
+      return site[key as keyof typeof site] ?? ""
+    }
+    return "____"
+  })
 }
 
 function KvTable({ rows }: { rows: [string, string][] }) {
@@ -21,8 +35,8 @@ function KvTable({ rows }: { rows: [string, string][] }) {
       <tbody>
         {rows.map(([label, value], i) => (
           <tr key={i}>
-            <td>{placeholder(label)}</td>
-            <td>{placeholder(value)}</td>
+            <td>{fillTemplate(label)}</td>
+            <td>{fillTemplate(value)}</td>
           </tr>
         ))}
       </tbody>
@@ -36,24 +50,24 @@ function BlockRenderer({ block }: { block: Block }) {
       return null
 
     case "h":
-      return <h2>{placeholder(block.t)}</h2>
+      return <h2>{fillTemplate(block.t)}</h2>
 
     case "c":
       return (
         <p>
-          <strong>{placeholder(block.n)}</strong> {placeholder(block.t)}
+          <strong>{fillTemplate(block.n)}</strong> {fillTemplate(block.t)}
         </p>
       )
 
     case "p":
       return (
         <p className={block.bold ? "font-semibold" : undefined}>
-          {placeholder(block.t)}
+          {fillTemplate(block.t)}
         </p>
       )
 
     case "li":
-      return <p className="pl-4">— {placeholder(block.t)}</p>
+      return <p className="pl-4">— {fillTemplate(block.t)}</p>
 
     case "kv":
       return <KvTable rows={block.rows} />
@@ -62,11 +76,11 @@ function BlockRenderer({ block }: { block: Block }) {
       return (
         <div>
           <p>
-            <strong>{placeholder(block.n)}</strong> {placeholder(block.t)}
+            <strong>{fillTemplate(block.n)}</strong> {fillTemplate(block.t)}
           </p>
           {block.note ? (
             <p className="text-sm text-muted-foreground">
-              {placeholder(block.note)}
+              {fillTemplate(block.note)}
             </p>
           ) : null}
         </div>

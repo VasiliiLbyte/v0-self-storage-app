@@ -1,4 +1,9 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Регистрация завершена",
+}
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 

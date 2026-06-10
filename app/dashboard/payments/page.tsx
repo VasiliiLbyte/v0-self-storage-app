@@ -1,4 +1,9 @@
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+  title: "Платежи",
+}
 import { oneRelation } from "@/lib/supabase-relations"
 import { CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"

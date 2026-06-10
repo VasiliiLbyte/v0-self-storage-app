@@ -4,6 +4,7 @@ import { HowItWorks } from "@/components/how-it-works"
 import { Calculator } from "@/components/calculator"
 import { Benefits } from "@/components/benefits"
 import { Reviews } from "@/components/reviews"
+import { Faq } from "@/components/faq"
 import { LocationSection } from "@/components/location-section"
 import { Footer } from "@/components/footer"
 
@@ -17,6 +18,7 @@ export default function HomePage() {
         <Calculator />
         <Benefits />
         <Reviews />
+        <Faq />
         <LocationSection />
       </main>
       <Footer />

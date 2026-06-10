@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import { getSiteEmail, getSitePhone, getSitePhoneDisplay, SITE_ADDRESS } from "@/lib/site-config"
 
 export function Footer() {
   return (
@@ -26,7 +27,7 @@ export function Footer() {
             Готовы освободить <span className="text-primary">пространство</span>?
           </h2>
           <p className="text-lg text-accent-foreground/70 max-w-xl mx-auto mb-8">
-            Забронируйте бокс онлайн за 2 минуты. Первый месяц — со скидкой 20%.
+            Забронируйте бокс онлайн за 2 минуты. Скидка 5% от 3 месяцев, 10% от 6.
           </p>
           <Link
             href="/booking"
@@ -102,7 +103,7 @@ export function Footer() {
               {[
                 { href: "/auth/login", label: "Личный кабинет" },
                 { href: "/#reviews", label: "Отзывы" },
-                { href: "#", label: "FAQ" },
+                { href: "/#faq", label: "FAQ" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">
@@ -117,17 +118,17 @@ export function Footer() {
             <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Контакты</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href="tel:+78120000000" className="text-accent-foreground/70 transition-colors hover:text-primary font-mono">
-                  +7 (812) 000-00-00
+                <a href={`tel:${getSitePhone()}`} className="text-accent-foreground/70 transition-colors hover:text-primary font-mono">
+                  {getSitePhoneDisplay()}
                 </a>
               </li>
               <li>
-                <a href="mailto:hello@pelikan-storage.ru" className="text-accent-foreground/70 transition-colors hover:text-primary">
-                  hello@pelikan-storage.ru
+                <a href={`mailto:${getSiteEmail()}`} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                  {getSiteEmail()}
                 </a>
               </li>
               <li className="text-accent-foreground/70">
-                Мытнинская наб., 5/7, Санкт-Петербург
+                {SITE_ADDRESS}
               </li>
             </ul>
           </div>

@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server"
+import { buildContractData } from "@/lib/contract/build-contract-data"
+import { CONTRACT_VERSION } from "@/lib/contract/contract-content"
+import { generateContractPdf } from "@/lib/contract/generate-contract"
 import { createServiceRoleClient } from "@/lib/supabase/admin"
+import { oneRelation } from "@/lib/supabase-relations"
 import { getNotificationClientIp, isYooKassaNotificationIp } from "@/lib/yookassa-ip"
 
 type NotificationPayload = {
@@ -79,6 +83,110 @@ export async function POST(request: Request) {
           .from("bookings")
           .update({ status: "active" })
           .eq("id", payment.booking_id)
+
+        try {
+          const { data: existingDoc } = await admin
+            .from("documents")
+            .select("id")
+            .eq("booking_id", payment.booking_id)
+            .eq("type", "contract")
+            .maybeSingle()
+
+          if (!existingDoc) {
+            const { data: booking } = await admin
+              .from("bookings")
+              .select(
+                `
+                id,
+                user_id,
+                start_date,
+                end_date,
+                months,
+                final_price,
+                access_code,
+                signed_at,
+                sign_ip,
+                sign_user_agent,
+                contract_version,
+                consent_crossborder,
+                consent_marketing,
+                profiles ( full_name, phone, email ),
+                boxes ( name, number, size_m2 )
+              `,
+              )
+              .eq("id", payment.booking_id)
+              .single()
+
+            if (booking) {
+              const profile = oneRelation(
+                booking.profiles as
+                  | { full_name: string | null; phone: string | null; email: string | null }
+                  | { full_name: string | null; phone: string | null; email: string | null }[]
+                  | null,
+              )
+              const box = oneRelation(
+                booking.boxes as
+                  | { name: string; number: number; size_m2: number }
+                  | { name: string; number: number; size_m2: number }[]
+                  | null,
+              )
+              const data = buildContractData({
+                id: booking.id,
+                start_date: booking.start_date,
+                end_date: booking.end_date,
+                months: booking.months,
+                final_price: booking.final_price,
+                access_code: booking.access_code,
+                signed_at: booking.signed_at,
+                sign_ip: booking.sign_ip,
+                sign_user_agent: booking.sign_user_agent,
+                consent_crossborder: booking.consent_crossborder,
+                consent_marketing: booking.consent_marketing,
+                profiles: profile,
+                boxes: box,
+              })
+              const { buffer, sha256 } = await generateContractPdf(data)
+
+              const storagePath = `${payment.user_id}/${payment.booking_id}/contract.pdf`
+              const { error: uploadErr } = await admin.storage
+                .from("documents")
+                .upload(storagePath, buffer, {
+                  contentType: "application/pdf",
+                  upsert: true,
+                })
+
+              if (!uploadErr) {
+                await admin.from("documents").insert({
+                  booking_id: payment.booking_id,
+                  user_id: payment.user_id,
+                  type: "contract",
+                  url: storagePath,
+                  sha256,
+                })
+                await admin
+                  .from("bookings")
+                  .update({ contract_url: storagePath })
+                  .eq("id", payment.booking_id)
+
+                await admin.from("audit_log").insert({
+                  user_id: payment.user_id,
+                  action: "contract.generated",
+                  entity: "booking",
+                  entity_id: payment.booking_id,
+                  metadata: {
+                    sha256,
+                    contract_version: booking.contract_version ?? CONTRACT_VERSION,
+                  },
+                  ip,
+                })
+              } else {
+                console.error("webhook: contract upload", uploadErr)
+              }
+            }
+          }
+        } catch (e) {
+          console.error("webhook: contract generation", e)
+        }
       }
 
       await admin.from("audit_log").insert({

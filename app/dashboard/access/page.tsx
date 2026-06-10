@@ -1,5 +1,10 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+  title: "Доступ",
+}
 import { oneRelation } from "@/lib/supabase-relations"
 import { KeyRound } from "lucide-react"
 import { Card } from "@/components/ui/card"

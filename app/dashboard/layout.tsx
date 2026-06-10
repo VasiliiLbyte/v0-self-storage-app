@@ -1,5 +1,10 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+  title: "Личный кабинет",
+}
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { DashboardShell } from "@/components/dashboard-shell"

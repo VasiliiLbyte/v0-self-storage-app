@@ -1,3 +1,5 @@
+import companyPublic from "../company-public.json"
+
 // Канонический юридический текст договора предоставления индивидуального бокса.
 // Версионируется: при любом изменении формулировок поднимайте CONTRACT_VERSION.
 // Плейсхолдеры {{...}} подставляются генератором из bookings/profiles/boxes + метаданных акцепта.
@@ -11,8 +13,8 @@ export const CONTRACT_VERSION = "2026-06-05"
 export const CROSSBORDER_TRANSFER = false
 
 export const DEFAULT_PREMISES_ADDRESS = "Мытнинская наб., 5/7"
-export const DEFAULT_CADASTRAL_NUMBER = ""
-export const DEFAULT_COMPANY_OGRNIP = ""
+export const DEFAULT_CADASTRAL_NUMBER = companyPublic.cadastral_number
+export const DEFAULT_COMPANY_OGRNIP = companyPublic.ogrnip
 export const DEFAULT_COMPANY_ADDRESS = "г. Санкт-Петербург"
 
 export function getContractSiteFields() {
