@@ -602,27 +602,29 @@ function BookingContent() {
                   </p>
 
                   <Card className="divide-y divide-border">
-                    <div className="flex items-center justify-between p-4">
-                      <span className="text-muted-foreground">Бокс</span>
-                      <span className="font-medium">{selectedBox?.name} ({selectedBox?.size_m2} м²)</span>
+                    <div className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="shrink-0 text-muted-foreground">Бокс</span>
+                      <span className="min-w-0 font-medium sm:text-right">
+                        {selectedBox?.name} ({selectedBox?.size_m2} м²)
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between p-4">
-                      <span className="text-muted-foreground">Срок аренды</span>
-                      <span className="font-medium">{months} мес.</span>
+                    <div className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="shrink-0 text-muted-foreground">Срок аренды</span>
+                      <span className="font-medium sm:text-right">{months} мес.</span>
                     </div>
-                    <div className="flex items-center justify-between p-4">
-                      <span className="text-muted-foreground">Дата начала</span>
-                      <span className="font-medium">{formatDateRuLong(startDate)}</span>
+                    <div className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="shrink-0 text-muted-foreground">Дата начала</span>
+                      <span className="min-w-0 font-medium sm:text-right">{formatDateRuLong(startDate)}</span>
                     </div>
                     {rentalEndIso ? (
-                      <div className="flex items-center justify-between p-4">
-                        <span className="text-muted-foreground">Дата окончания</span>
-                        <span className="font-medium">{formatDateRuLong(rentalEndIso)}</span>
+                      <div className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <span className="shrink-0 text-muted-foreground">Дата окончания</span>
+                        <span className="min-w-0 font-medium sm:text-right">{formatDateRuLong(rentalEndIso)}</span>
                       </div>
                     ) : null}
-                    <div className="flex items-center justify-between p-4">
-                      <span className="text-muted-foreground">Контакт</span>
-                      <span className="font-medium">{formData.name}</span>
+                    <div className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="shrink-0 text-muted-foreground">Контакт</span>
+                      <span className="min-w-0 truncate font-medium sm:text-right">{formData.name}</span>
                     </div>
                   </Card>
 

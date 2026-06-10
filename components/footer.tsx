@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="relative border-t border-border bg-accent text-accent-foreground overflow-hidden">
       {/* Large background text */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none">
-        <div className="text-[20vw] font-black text-background/[0.03] dark:text-foreground/[0.03] leading-none tracking-tighter whitespace-nowrap">
+        <div className="max-w-full text-[20vw] font-black leading-none tracking-tighter whitespace-nowrap text-background/[0.03] dark:text-foreground/[0.03]">
           ТВОЙ
         </div>
       </div>

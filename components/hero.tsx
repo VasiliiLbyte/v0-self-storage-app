@@ -9,11 +9,11 @@ export function Hero() {
     <section className="relative min-h-[90vh] overflow-hidden">
       {/* Massive background text */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as const }}
-          className="text-[25vw] font-black text-foreground/[0.03] dark:text-foreground/[0.04] leading-none tracking-tighter whitespace-nowrap"
+          className="max-w-full text-[25vw] font-black leading-none tracking-tighter whitespace-nowrap text-foreground/[0.03] dark:text-foreground/[0.04]"
         >
           СКЛАД
         </motion.div>

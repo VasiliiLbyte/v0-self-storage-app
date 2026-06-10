@@ -120,8 +120,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    overflow-x: clip;
+  }
   body {
     @apply bg-background text-foreground;
+    overflow-x: clip;
+    max-width: 100%;
   }
 }
 
@@ -136,6 +141,11 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
+}
+
+.legal-content {
+  overflow-x: auto;
+  word-break: break-word;
 }
 
 .legal-content h1,
