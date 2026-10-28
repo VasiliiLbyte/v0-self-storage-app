@@ -1,24 +1,37 @@
 ---
-description: Core development workflow and safety checks
+description: Базовая модель работы — план, скоуп, проверка, журнал в hub/
 alwaysApply: true
 ---
 
-# Development Workflow (Project Default)
+# Core Operating Model
 
-## Plan and verify before coding
+Полные правила: `AGENTS.md`, `hub/playbook/PIPELINE.md`. Рамка проекта: `hub/PROJECT.md`.
+В начале сессии читать `hub/PROGRESS.md` («Активно», «Следующее», «Блокеры», «Ожидает деплоя»).
 
-- Reuse existing patterns in the repo before adding new abstractions.
-- Keep changes scoped: one task, one coherent diff.
-- For non-trivial changes, define a short checklist: implementation, validation, docs.
+## Порядок
 
-## Safety and change discipline
+- Нетривиальная работа идёт строго в порядке Plan → approve → Implement → Verify → Report.
+  План обычной и рискованной задачи пишется в `hub/tasks/<дата>-<ID>.task.md`
+  по `hub/templates/TASK.md`. До approve оператора код не пишется.
+- Сначала найди существующие паттерны проекта и только потом вводи новые абстракции.
+- Изменения маленькие, ревьюабельные, в рамках запроса: одна задача — один связный diff.
+- Предпочитай инкрементальные правки широким переписываниям.
 
-- Never break existing user flows: landing, auth, booking, dashboard.
-- Prefer incremental refactors over broad rewrites.
-- Do not introduce silent fallbacks that hide errors.
+## Безопасность изменений
 
-## Definition of done
+- Не ломать существующие сценарии: лендинг, вход и регистрация, бронирование и оплата,
+  личный кабинет, админка.
+- Не выходить за скоуп: «заодно отрефакторил», «обновил зависимости» — запрещено.
+  Замеченное вне скоупа идёт в «Следующее» в `hub/PROGRESS.md`.
+- Не вводить молчаливые fallback-и, которые прячут ошибки.
+- Push и merge в `main` = прод-деплой на Vercel. Только по «go» оператора.
+- Не применять SQL к Supabase, не трогать env на Vercel и настройки ЮKassa: это делает оператор.
 
-- Run relevant checks (`lint`, build/type checks if touched areas are sensitive).
-- Update docs when behavior, setup, or env requirements change.
-- Include clear error handling and user-facing messages for failure states.
+## Definition of Done
+
+- Запрос реализован целиком, от начала до конца.
+- Проверки по `hub/playbook/VERIFY.md` запущены, их вывод приложен к отчёту.
+- Документация обновлена, если поменялось поведение, API (`hub/API_CONTRACT.md`),
+  настройка или env.
+- Для сбоев есть понятные пользователю сообщения.
+- Риски, компромиссы и отложенная работа перечислены явно; `hub/PROGRESS.md` обновлён.

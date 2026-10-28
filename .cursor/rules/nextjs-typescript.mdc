@@ -1,5 +1,5 @@
 ---
-description: Next.js App Router and TypeScript conventions
+description: Next.js App Router, TypeScript, Supabase и деньги — конвенции проекта
 globs: **/*.{ts,tsx,js,jsx}
 alwaysApply: false
 ---
@@ -8,23 +8,40 @@ alwaysApply: false
 
 ## App Router boundaries
 
-- Keep server logic in server contexts (`app/*` server components, route handlers, middleware).
-- Add `"use client"` only when interactivity is required.
-- Do not access browser APIs from server components.
+- Серверная логика живёт в серверных контекстах: server components, route handlers, middleware.
+- `"use client"` только там, где нужна интерактивность.
+- Не обращаться к browser API из server components.
 
-## Supabase usage
+## Supabase
 
-- Use `lib/supabase/server.ts` in server contexts and `lib/supabase/client.ts` in client contexts.
-- Keep auth/session flow consistent with existing callback and middleware implementation.
-- Prefer explicit null/error handling for Supabase responses; avoid non-null assumptions on data.
+- `lib/supabase/server.ts` — в серверных контекстах, `lib/supabase/client.ts` — в браузере.
+- `lib/supabase/admin.ts` (service role, обходит RLS) — только в route handlers и серверном коде,
+  никогда в модулях, которые попадают в клиентский бандл.
+- Сессию обновляет **только** middleware (`lib/supabase/proxy.ts`). Браузерный клиент остаётся
+  singleton с `autoRefreshToken: false`, в браузере используется `getSession()`.
+  Не трогать без отдельной задачи: из-за гонки refresh-токенов пользователей выкидывало
+  из аккаунта (`hub/playbook/LESSONS.md`).
+- Действия с побочным эффектом (выход, отмена, оплата) никогда не делаются через `GET`:
+  Next.js предзагружает ссылки.
+- Явная обработка `error` и `null` в ответах Supabase, без non-null предположений.
+- Схема и RLS меняются только новым `scripts/NNN_*.sql` (идемпотентным), оператор применяет его сам.
 
-## Type and state quality
+## Деньги и статусы
 
-- Avoid `any`; model external data with explicit types.
-- Keep components focused and small; extract reusable UI/state logic into hooks or helpers.
-- Validate user input at boundaries (forms, query params, external responses).
+- Цена, скидка, сумма платежа и статус брони или платежа определяются на сервере
+  (`boxes.price_month`, webhook ЮKassa). Значения из браузера — только подсказка UI.
+- Статус оплаты ставит webhook, а не `return_url` и не страница успеха.
+- Webhook идемпотентен: повторное уведомление ничего не меняет второй раз.
 
-## UX and failure behavior
+## Типы и состояние
 
-- Show actionable error messages for auth, booking, and profile update failures.
-- Preserve loading and empty states for async pages/components.
+- Без `any`: внешние данные моделируются явными типами; на границах — zod.
+- Компоненты маленькие и сфокусированные; повторяемая логика уходит в хуки и хелперы.
+- `components/ui/*` сгенерированы shadcn: правятся осознанно, не «заодно».
+- `content/legal/*.html` сгенерированы из `.docx` (`npm run build:legal`): руками не правятся.
+
+## UX и сбои
+
+- Понятные сообщения об ошибках для входа, бронирования, оплаты и профиля.
+- Сохранять состояния загрузки и пустые состояния у асинхронных страниц.
+- Вёрстка проверяется на 375px и 1280px без горизонтального скролла.
