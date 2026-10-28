@@ -1,5 +1,8 @@
 # v0-self-storage-app
 
+> **Правила разработки и память проекта:** [`AGENTS.md`](AGENTS.md) и [`hub/`](hub/README.md)
+> (рамка, журнал, решения, контракт API, раннбук деплоя).
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
 
 ## Built with v0

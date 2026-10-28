@@ -17,3 +17,6 @@ node_modules
 
 # TypeScript incremental build info
 tsconfig.tsbuildinfo
+# Control hub: private evidence and DB dumps
+hub/evidence/private/
+*.dump
