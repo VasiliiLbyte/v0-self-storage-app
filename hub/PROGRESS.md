@@ -22,7 +22,7 @@
 ### SEC-BOOKING-PRICE: брони, платежи и документы пишет только сервер (2026-10-29)
 - **Статус:** in progress → код проверен (tsc, build, формулы, 401), слой данных ждёт Preview
 - **Файл задачи:** `hub/tasks/2026-10-29-SEC-BOOKING-PRICE.task.md`, ветка `fix/sec-booking-price`, DEP-001
-- **Сейчас:** не закоммичено; нужен push ветки и смоук на Preview, затем merge и миграция 007 (после кода)
+- **Сейчас:** `1c78ce6` запушен, Preview собран (Vercel success, `https://v0-self-storage-cnnsxuoce-ig9573407-6185s-projects.vercel.app`, закрыт Vercel-авторизацией). Ждёт смоука оператора на Preview, затем merge и миграция 007 (после кода)
 - **Решения оператора:** в скоупе bookings + payments + documents + Storage `documents`; простая проверка занятости ячейки (active с пересечением дат или pending < 30 мин)
 
 ## Следующее
@@ -65,7 +65,7 @@
 
 | ID | Изменение | Ветка | SHA | Миграции | Код | Прод | Evidence |
 |---|---|---|---|---|---|---|---|
-| DEP-001 | SEC-BOOKING-PRICE: брони, платежи, документы пишет сервер; проверка занятости | `fix/sec-booking-price` | не закоммичено | `007` после кода | локально verified, Preview — нет | **pending** | — |
+| DEP-001 | SEC-BOOKING-PRICE: брони, платежи, документы пишет сервер; проверка занятости | `fix/sec-booking-price` | `1c78ce6` | `007` после кода | локально verified, Preview собран | **preview** | Vercel Preview success; смоук — оператор |
 
 Статусы колонки «Прод»: `pending` → `preview` → **`deployed`** (оператор, дата) / `rolled back`.
 Статус `deployed` ставится, когда есть SHA Ready-деплоя `main` на Vercel, прод 200 и смоук.
@@ -75,6 +75,7 @@
 ## Лог сессий
 
 <!-- Сверху самое свежее. Одна строка = одно событие с ID. -->
+- **2026-10-29 (DEP-001 preview):** `fix/sec-booking-price` `1c78ce6` запушен, Vercel Preview success. Preview закрыт SSO (302), смоук агентом невозможен — ждёт оператора.
 - **2026-10-29 (SEC-BOOKING-PRICE реализация):** ветка `fix/sec-booking-price`, не закоммичено. Verify: tsc ✓, build ✓, service role вне клиентского бандла ✓, формулы цены/дат = старым (0 расхождений, MSK и UTC), curl без сессии 401 ✓. ⚠️ Запросы к БД не проверены: Supabase из `.env.local` недоступен. Отклонение: своя pending-бронь не блокирует пользователю ячейку. DEP-001 pending.
 - **2026-10-29 (SEC-BOOKING-PRICE plan):** план в `hub/tasks/2026-10-29-SEC-BOOKING-PRICE.task.md`; найдено, что те же RLS-дыры есть в `payments`, `documents` и Storage `documents`, плюс нет проверки занятости ячейки. Ждёт approve.
 - **2026-10-29 (правила в проде):** merge `2cbd1c2` (ветка `chore/control-hub-rules`, `3ff4743`) в `main`, Vercel status `success`. Код сайта не менялся, DEP не заводился. Прод-домен не известен: адрес деплоя закрыт Vercel-авторизацией (302).

@@ -107,7 +107,7 @@
 
 ## Отчёт о проверке (2026-10-29)
 
-**Ветка / SHA:** `fix/sec-booking-price` / не закоммичено · **Статус:** код и сборка ✅, запросы к БД ⚠️ (локальный Supabase из `.env.local` не резолвится в DNS — проверка на Preview)
+**Ветка / SHA:** `fix/sec-booking-price` / `1c78ce6` · **Статус:** код и сборка ✅, запросы к БД ⚠️ (локальный Supabase из `.env.local` не резолвится в DNS — проверка на Preview)
 
 ### Изменённые файлы
 
@@ -188,7 +188,8 @@ GET  /booking, /               -> 200
 
 #### DEP-001: брони, платежи и документы пишет только сервер
 
-**Ветка / целевой SHA:** `fix/sec-booking-price` `<после коммита>`
+**Ветка / целевой SHA:** `fix/sec-booking-price` `1c78ce6` (+ коммит журнала)
+**Preview:** `https://v0-self-storage-cnnsxuoce-ig9573407-6185s-projects.vercel.app` (Vercel success)
 **Миграции:** `scripts/007_server_only_writes.sql`, применять **после** деплоя кода в прод
 **Env на Vercel:** без изменений; убедиться, что `SUPABASE_SERVICE_ROLE_KEY` есть для Production и Preview
 **Preview gate:** нужен (деньги + RLS)
