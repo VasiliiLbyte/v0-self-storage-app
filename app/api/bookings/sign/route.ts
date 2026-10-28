@@ -65,7 +65,15 @@ export async function POST(request: Request) {
 
   const ip = clientIp(request)
 
-  const { error: updateError } = await supabase
+  let svc: ReturnType<typeof createServiceRoleClient>
+  try {
+    svc = createServiceRoleClient()
+  } catch (e) {
+    console.error("bookings/sign service role", e)
+    return NextResponse.json({ error: "Signing is temporarily unavailable" }, { status: 503 })
+  }
+
+  const { error: updateError } = await svc
     .from("bookings")
     .update({
       signed_at: new Date().toISOString(),
@@ -77,6 +85,8 @@ export async function POST(request: Request) {
       consent_marketing: body.consent_marketing,
     })
     .eq("id", body.booking_id)
+    .eq("user_id", user.id)
+    .eq("status", "pending")
 
   if (updateError) {
     console.error("bookings/sign update", updateError)
@@ -84,7 +94,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    const svc = createServiceRoleClient()
     await svc.from("audit_log").insert({
       user_id: user.id,
       action: "contract.signed",

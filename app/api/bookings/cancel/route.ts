@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/admin"
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -41,10 +42,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Нельзя отменить эту аренду" }, { status: 400 })
   }
 
-  const { error: updateError } = await supabase
+  let svc: ReturnType<typeof createServiceRoleClient>
+  try {
+    svc = createServiceRoleClient()
+  } catch (e) {
+    console.error("cancel booking service role", e)
+    return NextResponse.json({ error: "Отмена временно недоступна" }, { status: 503 })
+  }
+
+  const { error: updateError } = await svc
     .from("bookings")
     .update({ status: "cancelled" })
     .eq("id", body.booking_id)
+    .eq("user_id", user.id)
+    .in("status", ["pending", "active"])
 
   if (updateError) {
     console.error("cancel booking", updateError)

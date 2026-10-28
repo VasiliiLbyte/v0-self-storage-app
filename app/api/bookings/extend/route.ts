@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { randomUUID } from "crypto"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/admin"
 import { createYooKassaPayment, formatRublesForYooKassa } from "@/lib/yookassa-client"
 import { oneRelation } from "@/lib/supabase-relations"
 
@@ -79,6 +80,14 @@ export async function POST(request: Request) {
       )
     }
 
+    let svc: ReturnType<typeof createServiceRoleClient>
+    try {
+      svc = createServiceRoleClient()
+    } catch (e) {
+      console.error("bookings/extend service role", e)
+      return NextResponse.json({ error: "Payment storage is not configured" }, { status: 503 })
+    }
+
     const paymentId = randomUUID()
     const baseUrl = appUrl.replace(/\/$/, "")
     const return_url = `${baseUrl}/booking/success?payment_id=${paymentId}`
@@ -111,7 +120,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { error: insertError } = await supabase.from("payments").insert({
+    const { error: insertError } = await svc.from("payments").insert({
       id: paymentId,
       booking_id: body.booking_id,
       user_id: user.id,

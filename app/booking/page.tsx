@@ -13,14 +13,26 @@ import { Label } from "@/components/ui/label"
 import { Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { CROSSBORDER_TRANSFER } from "@/lib/contract/contract-content"
+import {
+  computeBookingPrice,
+  computeRentalEndDateIso,
+  isAllowedMonths,
+  todayMoscowIso,
+} from "@/lib/booking-pricing"
 import { cn } from "@/lib/utils"
 import type { Session, User } from "@supabase/supabase-js"
 
-/** Семантика как при insert в bookings: конец периода = start + N календарных месяцев. */
-function computeRentalEndDateIso(startDate: string, months: number): string {
-  const end = new Date(startDate)
-  end.setMonth(end.getMonth() + months)
-  return end.toISOString().split("T")[0]
+async function loadOccupiedBoxIds(): Promise<Set<string>> {
+  try {
+    const res = await fetch("/api/boxes/occupied", { cache: "no-store" })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = (await res.json()) as { box_ids?: string[] }
+    return new Set(json.box_ids ?? [])
+  } catch (e) {
+    // Not fatal: /api/bookings/create still rejects an occupied box with 409
+    console.error("boxes/occupied:", e)
+    return new Set()
+  }
 }
 
 function formatDateRuLong(isoDate: string): string {
@@ -105,17 +117,20 @@ function BookingContent() {
   useEffect(() => {
     const supabase = createClient()
     
-    // Fetch boxes
-    supabase
-      .from("boxes")
-      .select("*")
-      .eq("in_maintenance", false)
-      .order("number", { ascending: true })
-      .then(({ data }: { data: Box[] | null }) => {
+    // Fetch boxes without occupied ones (server re-checks occupancy on booking)
+    Promise.all([
+      supabase
+        .from("boxes")
+        .select("*")
+        .eq("in_maintenance", false)
+        .order("number", { ascending: true }),
+      loadOccupiedBoxIds(),
+    ]).then(([{ data }, occupied]: [{ data: Box[] | null }, Set<string>]) => {
       if (data) {
-        setBoxes(data)
+        const free = data.filter((b: Box) => !occupied.has(b.id))
+        setBoxes(free)
         const boxId = searchParams.get("box")
-        const preselected = data.find((b: Box) => b.id === boxId)
+        const preselected = free.find((b: Box) => b.id === boxId)
         if (preselected) {
           setSelectedBox(preselected)
           if (isSizeType(preselected.type)) {
@@ -157,7 +172,8 @@ function BookingContent() {
     // Pre-fill months from URL
     const urlMonths = searchParams.get("months")
     if (urlMonths) {
-      setMonths(parseInt(urlMonths) || 1)
+      const parsedMonths = parseInt(urlMonths)
+      setMonths(isAllowedMonths(parsedMonths) ? parsedMonths : 1)
     }
 
     // Set default start date to tomorrow
@@ -166,10 +182,12 @@ function BookingContent() {
     setStartDate(tomorrow.toISOString().split("T")[0])
   }, [searchParams])
 
+  // Display only: the server recalculates the price from boxes.price_month
   const totalPrice = selectedBox ? selectedBox.price_month * months : 0
-  const discount = months >= 6 ? 0.1 : months >= 3 ? 0.05 : 0
-  const discountPercent = months >= 6 ? 10 : months >= 3 ? 5 : 0
-  const finalPrice = Math.round(totalPrice * (1 - discount))
+  const {
+    discount_percent: discountPercent,
+    final_price: finalPrice,
+  } = computeBookingPrice(selectedBox?.price_month ?? 0, months)
   const rentalEndIso =
     startDate && months > 0 ? computeRentalEndDateIso(startDate, months) : null
 
@@ -215,34 +233,46 @@ function BookingContent() {
       }
     }
 
-    // Create booking
-    const endDateIso = computeRentalEndDateIso(startDate, months)
-
-    const basePrice = Math.round(totalPrice)
-    const accessCode = String(Math.floor(100000 + Math.random() * 900000))
-
-    const { data: createdBooking, error: bookingError } = await supabase
-      .from("bookings")
-      .insert({
-        user_id: bookingUserId,
+    // Create booking: price, dates and access code are set by the server
+    const createRes = await fetch("/api/bookings/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
         box_id: selectedBox.id,
-        start_date: startDate,
-        end_date: endDateIso,
         months,
-        base_price: basePrice,
-        discount_percent: discountPercent,
-        final_price: finalPrice,
-        access_code: accessCode,
-        status: "pending",
-      })
-      .select("id")
-      .single()
+        start_date: startDate,
+      }),
+    })
+    const createJson = (await createRes.json().catch(() => ({}))) as {
+      booking_id?: string
+      error?: unknown
+    }
 
-    if (bookingError || !createdBooking) {
-      alert("Ошибка при создании бронирования: " + (bookingError?.message ?? ""))
+    if (createRes.status === 409) {
+      alert(
+        typeof createJson.error === "string"
+          ? createJson.error
+          : "Ячейка уже занята, выберите другую.",
+      )
+      const occupied = await loadOccupiedBoxIds()
+      setBoxes((prev) => prev.filter((b) => !occupied.has(b.id) && b.id !== selectedBox.id))
+      setSelectedBox(null)
+      setStep(1)
       setSubmitting(false)
       return
     }
+
+    if (!createRes.ok || !createJson.booking_id) {
+      alert(
+        "Ошибка при создании бронирования" +
+          (typeof createJson.error === "string" ? ": " + createJson.error : ""),
+      )
+      setSubmitting(false)
+      return
+    }
+
+    const createdBooking = { id: createJson.booking_id }
 
     const { error: profileUpdateError } = await supabase
       .from("profiles")
@@ -273,16 +303,11 @@ function BookingContent() {
       return
     }
 
-    const description = `Аренда ${selectedBox.name} (${months} мес.)`
     const payRes = await fetch("/api/payments/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        booking_id: createdBooking.id,
-        amount: finalPrice,
-        description,
-      }),
+      body: JSON.stringify({ booking_id: createdBooking.id }),
     })
 
     const payJson = (await payRes.json()) as { confirmation_url?: string; error?: string }
@@ -531,7 +556,7 @@ function BookingContent() {
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      min={new Date().toISOString().split("T")[0]}
+                      min={todayMoscowIso()}
                       className="max-w-xs"
                     />
                     {rentalEndIso ? (
@@ -760,9 +785,9 @@ function BookingContent() {
                         <span className="text-muted-foreground">Бокс × {months} мес</span>
                         <span>{totalPrice.toLocaleString("ru-RU")} ₽</span>
                       </div>
-                      {discount > 0 && (
+                      {discountPercent > 0 && (
                         <div className="flex justify-between text-sm text-green-600">
-                          <span>Скидка {discount * 100}%</span>
+                          <span>Скидка {discountPercent}%</span>
                           <span>−{(totalPrice - finalPrice).toLocaleString("ru-RU")} ₽</span>
                         </div>
                       )}

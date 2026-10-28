@@ -1,7 +1,7 @@
 # Pelikan Storage: прогресс и память проекта
 
 Живой журнал. Обновляется в конце каждой сессии и после каждого деплоя. Версионируется git.
-**Последнее обновление:** 2026-10-29 (правила Control Hub Kit адаптированы под проект)
+**Последнее обновление:** 2026-10-29 (правила задеплоены; план SEC-BOOKING-PRICE)
 
 > Правило ротации: если файл больше ~1500 строк, закрытые задачи старше месяца и лог сессий
 > старше месяца переносятся в `archive/PROGRESS-<YYYY-MM>.md`. Раздел «Ожидает деплоя»
@@ -19,25 +19,26 @@
 - **Решения оператора:** <если были>
 -->
 
-Нет.
+### SEC-BOOKING-PRICE: брони, платежи и документы пишет только сервер (2026-10-29)
+- **Статус:** in progress → код проверен (tsc, build, формулы, 401), слой данных ждёт Preview
+- **Файл задачи:** `hub/tasks/2026-10-29-SEC-BOOKING-PRICE.task.md`, ветка `fix/sec-booking-price`, DEP-001
+- **Сейчас:** не закоммичено; нужен push ветки и смоук на Preview, затем merge и миграция 007 (после кода)
+- **Решения оператора:** в скоупе bookings + payments + documents + Storage `documents`; простая проверка занятости ячейки (active с пересечением дат или pending < 30 мин)
 
 ## Следующее
 
-1. **SEC-BOOKING-PRICE**: бронь создаётся из браузера (`app/booking/page.tsx`, insert в `bookings`),
-   `final_price`, `discount_percent`, `status`, `access_code` задаёт клиент. RLS `bookings_insert_own`
-   и `bookings_update_own` (`scripts/001_create_tables.sql:199-200`) пропускают любые поля своей брони.
-   Можно оплатить 1 ₽ или поставить `active` без оплаты. Перенести создание брони на сервер,
-   цену считать из `boxes`, запретить клиенту UPDATE статуса, цены и дат. Деньги + RLS + миграция:
-   нужен план и approve.
-2. **TOOLING-LINT**: `npm run lint` не работает (нет `eslint` и конфига). Решить: поставить
+1. **TOOLING-LINT**: `npm run lint` не работает (нет `eslint` и конфига). Решить: поставить
    eslint + `eslint-config-next` или убрать скрипт.
-3. **TOOLING-TYPES**: `ignoreBuildErrors: true` в `next.config.mjs`. Сейчас `tsc` чистый,
+2. **TOOLING-TYPES**: `ignoreBuildErrors: true` в `next.config.mjs`. Сейчас `tsc` чистый,
    можно включить проверку типов в сборке.
-4. **TEST-INFRA**: тестов нет. Начать с чистых функций денег и дат (скидки, `computeRentalEndDateIso`,
+3. **TEST-INFRA**: тестов нет. Начать с чистых функций денег и дат (скидки, `computeRentalEndDateIso`,
    продление в webhook).
-5. **CONTENT-CONTACTS**: телефон и email в `lib/site-config.ts` заглушки
+4. **CONTENT-CONTACTS**: телефон и email в `lib/site-config.ts` заглушки
    (или задать `NEXT_PUBLIC_SITE_PHONE*` / `NEXT_PUBLIC_SITE_EMAIL` на Vercel).
-6. **CHORE-CLEANUP**: пустая папка `Новая папка/` в корне, `.DS_Store`; README в основном шаблон v0.
+5. **BOOKING-DOUBLE-PAY**: проверка занятости не атомарна; брошенная `pending`-бронь старше 30 мин, оплаченная позже, может дать две `active` одной ячейки. Варианты: проверка в webhook или exclusion constraint (см. отчёт SEC-BOOKING-PRICE).
+6. **DEV-ENV-SUPABASE**: хост Supabase из `.env.local` не резолвится (проект на паузе или удалён) — локально нельзя работать с БД. Оператору: обновить `.env.local` или выделить dev-проект.
+7. **CHORE-NEXT-PROXY**: Next.js 16 предупреждает, что `middleware.ts` устарел, надо переименовать в `proxy.ts` (осторожно: затрагивает сессии, см. LESSONS).
+8. **CHORE-CLEANUP**: пустая папка `Новая папка/` в корне, `.DS_Store`; README в основном шаблон v0.
 
 ## Блокеры и открытые вопросы
 
@@ -45,6 +46,7 @@
 |---|---|---|---|
 | 1 | Прод-URL (для `hub/PROJECT.md` §3 и смоука) | оператор | 2026-10-29 |
 | 2 | Preview-деплои Vercel смотрят в тот же Supabase-проект, что и прод? Есть ли тестовый магазин ЮKassa? От этого зависит, можно ли проверять оплату на preview | оператор | 2026-10-29 |
+| 3 | `.env.local` смотрит в недоступный Supabase-проект (DNS не резолвится): локальная проверка с БД невозможна | оператор | 2026-10-29 |
 
 ## Отложено / HOLD
 
@@ -63,7 +65,7 @@
 
 | ID | Изменение | Ветка | SHA | Миграции | Код | Прод | Evidence |
 |---|---|---|---|---|---|---|---|
-| — | | | | | | | |
+| DEP-001 | SEC-BOOKING-PRICE: брони, платежи, документы пишет сервер; проверка занятости | `fix/sec-booking-price` | не закоммичено | `007` после кода | локально verified, Preview — нет | **pending** | — |
 
 Статусы колонки «Прод»: `pending` → `preview` → **`deployed`** (оператор, дата) / `rolled back`.
 Статус `deployed` ставится, когда есть SHA Ready-деплоя `main` на Vercel, прод 200 и смоук.
@@ -73,5 +75,8 @@
 ## Лог сессий
 
 <!-- Сверху самое свежее. Одна строка = одно событие с ID. -->
+- **2026-10-29 (SEC-BOOKING-PRICE реализация):** ветка `fix/sec-booking-price`, не закоммичено. Verify: tsc ✓, build ✓, service role вне клиентского бандла ✓, формулы цены/дат = старым (0 расхождений, MSK и UTC), curl без сессии 401 ✓. ⚠️ Запросы к БД не проверены: Supabase из `.env.local` недоступен. Отклонение: своя pending-бронь не блокирует пользователю ячейку. DEP-001 pending.
+- **2026-10-29 (SEC-BOOKING-PRICE plan):** план в `hub/tasks/2026-10-29-SEC-BOOKING-PRICE.task.md`; найдено, что те же RLS-дыры есть в `payments`, `documents` и Storage `documents`, плюс нет проверки занятости ячейки. Ждёт approve.
+- **2026-10-29 (правила в проде):** merge `2cbd1c2` (ветка `chore/control-hub-rules`, `3ff4743`) в `main`, Vercel status `success`. Код сайта не менялся, DEP не заводился. Прод-домен не известен: адрес деплоя закрыт Vercel-авторизацией (302).
 - **2026-10-29 (старт):** правила Control Hub Kit адаптированы: `AGENTS.md`, `CLAUDE.md`, `hub/`,
   `.claude/commands/`, `.cursor/rules/`. Проверка: `tsc --noEmit` ✓. Найдена дыра SEC-BOOKING-PRICE.

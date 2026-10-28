@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
 import { randomUUID } from "crypto"
 import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/admin"
 import { oneRelation } from "@/lib/supabase-relations"
 import { createYooKassaPayment, formatRublesForYooKassa } from "@/lib/yookassa-client"
 
+/** Сумма и описание берутся из брони в БД. `amount`, если передан, только сверяется. */
 type CreateBody = {
   booking_id?: string
   amount?: number
-  description?: string
 }
 
 export async function POST(request: Request) {
@@ -31,14 +32,10 @@ export async function POST(request: Request) {
 
     if (
       !body.booking_id ||
-      typeof body.amount !== "number" ||
-      !body.description ||
-      typeof body.description !== "string"
+      typeof body.booking_id !== "string" ||
+      (body.amount !== undefined && typeof body.amount !== "number")
     ) {
-      return NextResponse.json(
-        { error: "Expected { booking_id, amount, description }" },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Expected { booking_id }" }, { status: 400 })
     }
 
     const { data: booking, error: bookingError } = await supabase
@@ -48,8 +45,9 @@ export async function POST(request: Request) {
         id,
         user_id,
         final_price,
+        months,
         status,
-        boxes ( in_maintenance )
+        boxes ( name, in_maintenance )
       `,
       )
       .eq("id", body.booking_id)
@@ -59,9 +57,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 })
     }
 
-    const boxRow = oneRelation(
-      booking.boxes as { in_maintenance?: boolean } | { in_maintenance?: boolean }[] | null,
-    )
+    type BoxRow = { name?: string; in_maintenance?: boolean }
+    const boxRow = oneRelation(booking.boxes as BoxRow | BoxRow[] | null)
     const inMaint = boxRow?.in_maintenance
     if (inMaint) {
       return NextResponse.json(
@@ -78,9 +75,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Booking is not payable" }, { status: 400 })
     }
 
-    if (booking.final_price !== body.amount) {
+    if (body.amount !== undefined && booking.final_price !== body.amount) {
       return NextResponse.json({ error: "Amount mismatch" }, { status: 400 })
     }
+
+    const amount = booking.final_price
+    const description = `Аренда ${boxRow?.name ?? "ячейки"} (${booking.months} мес.)`
 
     const shopId = process.env.YOOKASSA_SHOP_ID
     const secretKey = process.env.YOOKASSA_SECRET_KEY
@@ -93,6 +93,14 @@ export async function POST(request: Request) {
       )
     }
 
+    let svc: ReturnType<typeof createServiceRoleClient>
+    try {
+      svc = createServiceRoleClient()
+    } catch (e) {
+      console.error("payments/create service role", e)
+      return NextResponse.json({ error: "Payment storage is not configured" }, { status: 503 })
+    }
+
     const paymentId = randomUUID()
     const baseUrl = appUrl.replace(/\/$/, "")
     const return_url = `${baseUrl}/booking/success?payment_id=${paymentId}`
@@ -103,12 +111,12 @@ export async function POST(request: Request) {
       idempotenceKey: randomUUID(),
       body: {
         amount: {
-          value: formatRublesForYooKassa(body.amount),
+          value: formatRublesForYooKassa(amount),
           currency: "RUB",
         },
         confirmation: { type: "redirect", return_url },
         capture: true,
-        description: body.description,
+        description,
         metadata: {
           booking_id: body.booking_id,
           user_id: user.id,
@@ -124,11 +132,11 @@ export async function POST(request: Request) {
       )
     }
 
-    const { error: insertError } = await supabase.from("payments").insert({
+    const { error: insertError } = await svc.from("payments").insert({
       id: paymentId,
       booking_id: body.booking_id,
       user_id: user.id,
-      amount: body.amount,
+      amount,
       currency: "RUB",
       status: "pending",
       yookassa_payment_id: yk.id,
