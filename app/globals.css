@@ -17,8 +17,12 @@
   --secondary-foreground: oklch(0.15 0.02 255);
   --muted: oklch(0.96 0 0);
   --muted-foreground: oklch(0.45 0.01 255);
-  --accent: oklch(0.22 0.04 255);
-  --accent-foreground: oklch(0.99 0 0);
+  /* accent = subtle hover/selection surface (shadcn semantics) */
+  --accent: oklch(0.96 0.01 255);
+  --accent-foreground: oklch(0.15 0.02 255);
+  /* inverse = dark brand surface (footer, 404 shapes) */
+  --inverse: oklch(0.22 0.04 255);
+  --inverse-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.92 0 0);
@@ -53,8 +57,10 @@
   --secondary-foreground: oklch(0.96 0 0);
   --muted: oklch(0.22 0.02 255);
   --muted-foreground: oklch(0.65 0.01 255);
-  --accent: oklch(0.72 0.18 45);
-  --accent-foreground: oklch(0.12 0.02 255);
+  --accent: oklch(0.22 0.03 255);
+  --accent-foreground: oklch(0.96 0 0);
+  --inverse: oklch(0.09 0.02 255);
+  --inverse-foreground: oklch(0.96 0 0);
   --destructive: oklch(0.45 0.18 25);
   --destructive-foreground: oklch(0.96 0 0);
   --border: oklch(0.28 0.02 255);
@@ -92,6 +98,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -191,7 +199,7 @@
 
 .legal-content th,
 .legal-content td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   padding: 6px 8px;
   vertical-align: top;
 }

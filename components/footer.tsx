@@ -7,10 +7,10 @@ import { getSiteEmail, getSitePhone, getSitePhoneDisplay, SITE_ADDRESS } from "@
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-border bg-accent text-accent-foreground overflow-hidden">
+    <footer className="relative border-t border-border bg-inverse text-inverse-foreground overflow-hidden">
       {/* Large background text */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden select-none">
-        <div className="max-w-full text-[20vw] font-black leading-none tracking-tighter whitespace-nowrap text-background/[0.03] dark:text-foreground/[0.03]">
+        <div className="max-w-full text-[20vw] font-black leading-none tracking-tighter whitespace-nowrap text-inverse-foreground/[0.03]">
           ТВОЙ
         </div>
       </div>
@@ -26,7 +26,7 @@ export function Footer() {
           <h2 className="text-3xl font-black tracking-tight md:text-5xl lg:text-6xl mb-6">
             Готовы освободить <span className="text-primary">пространство</span>?
           </h2>
-          <p className="text-lg text-accent-foreground/70 max-w-xl mx-auto mb-8">
+          <p className="text-lg text-inverse-foreground/70 max-w-xl mx-auto mb-8">
             Забронируйте бокс онлайн за 2 минуты. Скидка 5% от 3 месяцев, 10% от 6.
           </p>
           <Link
@@ -55,13 +55,13 @@ export function Footer() {
               </div>
               <span className="text-2xl font-bold tracking-tight">ПЕЛИКАН</span>
             </Link>
-            <p className="text-sm leading-relaxed text-accent-foreground/60">
+            <p className="text-sm leading-relaxed text-inverse-foreground/60">
               Современный склад для хранения вещей в Санкт-Петербурге. Работаем с 2020 года.
             </p>
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Услуги</h4>
+            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-inverse-foreground/40">Услуги</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/booking", label: "Аренда бокса" },
@@ -69,7 +69,7 @@ export function Footer() {
                 { href: "/#benefits", label: "Преимущества" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                  <Link href={link.href} className="text-inverse-foreground/70 transition-colors hover:text-primary">
                     {link.label}
                   </Link>
                 </li>
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Документы</h4>
+            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-inverse-foreground/40">Документы</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/legal/offer", label: "Публичная оферта" },
@@ -89,7 +89,7 @@ export function Footer() {
                 { href: "/legal/contract", label: "Типовой договор" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                  <Link href={link.href} className="text-inverse-foreground/70 transition-colors hover:text-primary">
                     {link.label}
                   </Link>
                 </li>
@@ -98,7 +98,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Клиентам</h4>
+            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-inverse-foreground/40">Клиентам</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/auth/login", label: "Личный кабинет" },
@@ -106,7 +106,7 @@ export function Footer() {
                 { href: "/#faq", label: "FAQ" },
               ].map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                  <Link href={link.href} className="text-inverse-foreground/70 transition-colors hover:text-primary">
                     {link.label}
                   </Link>
                 </li>
@@ -115,19 +115,19 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-accent-foreground/40">Контакты</h4>
+            <h4 className="mb-5 text-xs font-semibold uppercase tracking-widest text-inverse-foreground/40">Контакты</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href={`tel:${getSitePhone()}`} className="text-accent-foreground/70 transition-colors hover:text-primary font-mono">
+                <a href={`tel:${getSitePhone()}`} className="text-inverse-foreground/70 transition-colors hover:text-primary font-mono">
                   {getSitePhoneDisplay()}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${getSiteEmail()}`} className="text-accent-foreground/70 transition-colors hover:text-primary">
+                <a href={`mailto:${getSiteEmail()}`} className="text-inverse-foreground/70 transition-colors hover:text-primary">
                   {getSiteEmail()}
                 </a>
               </li>
-              <li className="text-accent-foreground/70">
+              <li className="text-inverse-foreground/70">
                 {SITE_ADDRESS}
               </li>
             </ul>
@@ -136,14 +136,14 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-6 border-t border-border/30 pt-8 md:flex-row">
-          <p className="text-sm text-accent-foreground/40">
+          <p className="text-sm text-inverse-foreground/40">
             © {new Date().getFullYear()} ПЕЛИКАН. Все права защищены.
           </p>
           
           <div className="flex items-center gap-6">
             <a
               href="#"
-              className="text-accent-foreground/40 transition-colors hover:text-primary"
+              className="text-inverse-foreground/40 transition-colors hover:text-primary"
               aria-label="Telegram"
             >
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@ export function Footer() {
             </a>
             <a
               href="#"
-              className="text-accent-foreground/40 transition-colors hover:text-primary"
+              className="text-inverse-foreground/40 transition-colors hover:text-primary"
               aria-label="WhatsApp"
             >
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export function Footer() {
             </a>
             <a
               href="#"
-              className="text-accent-foreground/40 transition-colors hover:text-primary"
+              className="text-inverse-foreground/40 transition-colors hover:text-primary"
               aria-label="VK"
             >
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -170,7 +170,7 @@ export function Footer() {
             </a>
           </div>
 
-          <div className="text-xs text-accent-foreground/30 font-mono">
+          <div className="text-xs text-inverse-foreground/30 font-mono">
             v0.skladtvoy.ru
           </div>
         </div>

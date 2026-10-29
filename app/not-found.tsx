@@ -68,7 +68,7 @@ export default function NotFound() {
           }}
         />
         <motion.div
-          className="absolute bottom-[20%] left-[20%] w-8 h-8 md:w-14 md:h-14 border-2 border-accent dark:border-primary/50"
+          className="absolute bottom-[20%] left-[20%] w-8 h-8 md:w-14 md:h-14 border-2 border-inverse dark:border-primary/50"
           animate={{
             y: [0, -20, 0],
           }}
@@ -82,7 +82,7 @@ export default function NotFound() {
           }}
         />
         <motion.div
-          className="absolute top-[30%] right-[25%] w-6 h-6 md:w-10 md:h-10 bg-accent dark:bg-primary/30"
+          className="absolute top-[30%] right-[25%] w-6 h-6 md:w-10 md:h-10 bg-inverse dark:bg-primary/30"
           animate={{
             scale: [1, 1.5, 1],
             opacity: [0.5, 1, 0.5],
@@ -144,10 +144,10 @@ export default function NotFound() {
               href="/"
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
-              className="group relative inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground font-semibold text-lg rounded-full overflow-hidden transition-transform hover:scale-105"
+              className="group relative inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground hover:text-inverse-foreground font-semibold text-lg rounded-full overflow-hidden transition-transform hover:scale-105"
             >
               <motion.span
-                className="absolute inset-0 bg-accent"
+                className="absolute inset-0 bg-inverse"
                 initial={{ x: "-100%" }}
                 animate={{ x: isHovering ? "0%" : "-100%" }}
                 transition={{ duration: 0.3 }}

@@ -62,7 +62,7 @@ export function AdminAnalyticsCharts({
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} width={44} />
                 <Tooltip formatter={(v: number) => [`${v.toLocaleString("ru-RU")} ₽`, ""]} />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -73,7 +73,7 @@ export function AdminAnalyticsCharts({
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} width={36} />
                 <Tooltip formatter={(v: number) => [`${v}%`, ""]} />
-                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot />
+                <Line type="monotone" dataKey="value" stroke="var(--chart-1)" strokeWidth={2} dot />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -85,7 +85,7 @@ export function AdminAnalyticsCharts({
               <XAxis dataKey="name" tick={{ fontSize: 10 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={36} />
               <Tooltip />
-              <Bar dataKey="value" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="var(--muted-foreground)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>

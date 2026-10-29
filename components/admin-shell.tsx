@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 import { AdminNav } from "@/components/admin-nav"
 
 export function AdminShell({

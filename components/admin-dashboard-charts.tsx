@@ -38,9 +38,9 @@ export function AdminDashboardCharts({ occupancy, revenue }: Props) {
               <Line
                 type="monotone"
                 dataKey="occupancyPct"
-                stroke="#FF6B00"
+                stroke="var(--chart-1)"
                 strokeWidth={2}
-                dot={{ fill: "#FF6B00", stroke: "#FF6B00", r: 4 }}
+                dot={{ fill: "var(--chart-1)", stroke: "var(--chart-1)", r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -61,7 +61,7 @@ export function AdminDashboardCharts({ occupancy, revenue }: Props) {
                 formatter={(v: number) => [`${v.toLocaleString("ru-RU")} ₽`, "Выручка"]}
                 labelFormatter={(l) => `Месяц ${l}`}
               />
-              <Bar dataKey="revenue" fill="#FF6B00" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

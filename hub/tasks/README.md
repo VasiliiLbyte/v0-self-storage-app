@@ -7,6 +7,7 @@
 |---|---|
 | `YYYY-MM-DD-<ID>.task.md` | `hub/templates/TASK.md` |
 | `YYYY-MM-DD-INC-<суть>.incident.md` | `hub/templates/INCIDENT.md` |
+| `YYYY-MM-DD-<ID>.audit.md` | свободная форма: аудит или обзор, из которого рождаются задачи |
 
 Создание: `bash hub/scripts/new-task.sh <task|incident> <ID>`.
 
