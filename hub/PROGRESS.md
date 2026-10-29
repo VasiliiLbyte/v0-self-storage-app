@@ -22,7 +22,7 @@
 ### DESIGN-THEME-TOKENS: токены `accent` / `inverse`, тема без вспышки, цвета графиков (2026-10-29)
 - **Статус:** verified (графики админки вживую — после доступа к БД)
 - **Файл задачи:** `hub/tasks/2026-10-29-DESIGN-THEME-TOKENS.task.md`, ветка `feat/design-theme-tokens` от `main`, DEP-002
-- **Сейчас:** не закоммичено; ждёт go на коммит, push и merge (только UI, без миграций)
+- **Сейчас:** `0f8fd46` запушен, Preview собран (Vercel success, `https://v0-self-storage-nfqpv056q-ig9573407-6185s-projects.vercel.app`, закрыт Vercel-авторизацией). Ждёт смоука и merge оператором (только UI, без миграций)
 - **Решения оператора:** начать дизайн-работы с этого пакета
 
 ### SEC-BOOKING-PRICE: брони, платежи и документы пишет только сервер (2026-10-29)
@@ -76,7 +76,7 @@
 
 | ID | Изменение | Ветка | SHA | Миграции | Код | Прод | Evidence |
 |---|---|---|---|---|---|---|---|
-| DEP-002 | DESIGN-THEME-TOKENS: токены `accent` / `inverse`, next-themes, цвета графиков | `feat/design-theme-tokens` | не закоммичено | нет | verified | **pending** | — |
+| DEP-002 | DESIGN-THEME-TOKENS: токены `accent` / `inverse`, next-themes, цвета графиков | `feat/design-theme-tokens` | `0f8fd46` | нет | verified | **preview** | Vercel Preview success; смоук — оператор |
 | DEP-001 | SEC-BOOKING-PRICE: брони, платежи, документы пишет сервер; проверка занятости | `fix/sec-booking-price` | `1c78ce6` | `007` после кода | локально verified, Preview собран | **preview** | Vercel Preview success; смоук — оператор |
 
 Статусы колонки «Прод»: `pending` → `preview` → **`deployed`** (оператор, дата) / `rolled back`.
@@ -87,6 +87,7 @@
 ## Лог сессий
 
 <!-- Сверху самое свежее. Одна строка = одно событие с ID. -->
+- **2026-10-29 (DEP-002 preview):** `feat/design-theme-tokens` `0f8fd46` запушен, Vercel Preview success. Ждёт смоука и merge оператором.
 - **2026-10-29 (DESIGN-THEME-TOKENS verified):** ветка `feat/design-theme-tokens` от `main`, не закоммичено. Verify: tsc ✓, build ✓; светлый футер — цвета до/после совпали; тёмный футер `lab(0.64)` вместо оранжевого; hover ghost — светлая подложка; next-themes скрипт до `<header>`, без hydration-предупреждений; графики: `hsl(var(--primary))` = чёрный → `var(--chart-1)` = оранжевый. Добавлено: текст hover на 404. DEP-002 pending.
 - **2026-10-29 (DESIGN-AUDIT):** обход страниц на 1280 и 375, светлая и тёмная темы; кабинет и админка по коду (БД недоступна). Итог в `hub/tasks/2026-10-29-DESIGN-AUDIT.audit.md`: 8 × P0, 10 × P1, 9 × P2, 6 пакетов работ (позже: 9 × P0 — графики аналитики; P2-9 поправлен: кнопка 404 оранжевая). Смоук DEP-001 на HOLD до сервера и домена.
 - **2026-10-29 (DEP-001 preview):** `fix/sec-booking-price` `1c78ce6` запушен, Vercel Preview success. Preview закрыт SSO (302), смоук агентом невозможен — ждёт оператора.

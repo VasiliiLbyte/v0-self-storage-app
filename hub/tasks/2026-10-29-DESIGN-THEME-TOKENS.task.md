@@ -78,7 +78,7 @@
 
 ## Отчёт о проверке (2026-10-29)
 
-**Ветка / SHA:** `feat/design-theme-tokens` / не закоммичено · **Статус:** verified; ⚠️ графики админки вживую не открывались (нет БД), цвет проверен отдельно
+**Ветка / SHA:** `feat/design-theme-tokens` / `0f8fd46` · **Статус:** verified; ⚠️ графики админки вживую не открывались (нет БД), цвет проверен отдельно
 
 ### Изменённые файлы
 
@@ -150,7 +150,8 @@ HTML-ответ `/`: inline-скрипт next-themes стоит до <header>; t
 
 #### DEP-002: токены `accent` / `inverse`, тема без вспышки, цвета графиков
 
-**Ветка / целевой SHA:** `feat/design-theme-tokens` `<после коммита>`
+**Ветка / целевой SHA:** `feat/design-theme-tokens` `0f8fd46` (+ коммит журнала)
+**Preview:** `https://v0-self-storage-nfqpv056q-ig9573407-6185s-projects.vercel.app` (Vercel success)
 **Миграции:** нет · **Env:** без изменений · **Preview gate:** не обязателен (только UI), но удобен для смоука
 
 ```bash
